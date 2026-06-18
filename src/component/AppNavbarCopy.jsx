@@ -16,10 +16,12 @@ export default function AppNavbar() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const pathname = usePathname(); 
 
-  // --- LIVE AUTH STATE ---
-  const { data: session } = authClient.useSession();
+  // --- LIVE AUTH STATE WITH LOADING CHECK ---
+  // এখানে isPending যুক্ত করা হয়েছে যা লোডিং স্টেট ট্র্যাক করে
+  const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
   const isLoggedIn = !!user;
+  console.log(isLoggedIn)
 
   // Sync initial dark mode setting on load
   useEffect(() => {
@@ -65,25 +67,31 @@ export default function AppNavbar() {
   };
 
   return (
-    // Replaced explicit absolute layouts with an optimized layout wrapper to prevent rendering collisions
     <div className="w-full fixed top-0 inset-x-0 z-50 flex flex-col shadow-sm">
       
-   
-
       {/* 🧭 SYSTEM COMPATIBLE NAVBAR CONTAINER */}
       <Navbar
         isMenuOpen={isMenuOpen}
         onMenuOpenChange={setIsMenuOpen}
         maxWidth="xl"
-        // Changed layout parameters from fixed to relative to ensure elements auto-stack without layout drift
         className="bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-divider/40 h-16 sm:h-20 w-full px-2 sm:px-6 md:px-12 position-relative"
       >
         {/* 📱 MOBILE VIEWPORT BRAND BAR */}
         <NavbarContent className="md:hidden gap-2 sm:gap-4 w-full" justify="start">
+          
+          {/* 🍔 CUSTOM ANIMATED HAMBURGER BUTTON */}
           <NavbarMenuToggle
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            className="text-default-600 dark:text-zinc-400 h-10 w-10 min-w-[40px] flex items-center justify-center"
+            className="text-default-600 dark:text-zinc-400 h-10 w-10 min-w-[40px] flex items-center justify-center rounded-xl hover:bg-default-100 dark:hover:bg-zinc-900/50 transition-colors"
+            icon={(isOpen) => (
+              <div className="flex flex-col justify-center items-center w-5 h-5 relative gap-[4px]">
+                <span className={`bg-current h-[2px] w-5 rounded-full transition-all duration-300 transform origin-center ${isOpen ? "rotate-45 translate-y-[6px]" : ""}`} />
+                <span className={`bg-current h-[2px] w-5 rounded-full transition-all duration-300 ${isOpen ? "opacity-0" : ""}`} />
+                <span className={`bg-current h-[2px] w-5 rounded-full transition-all duration-300 transform origin-center ${isOpen ? "-rotate-45 -translate-y-[6px]" : ""}`} />
+              </div>
+            )}
           />
+          
           <NavbarBrand as={Link} href="/" className="cursor-pointer select-none items-center gap-2 max-w-fit">
             <div className="relative w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center overflow-hidden rounded-lg sm:rounded-xl dark:bg-white bg-black p-1 flex-shrink-0">
               <Image
@@ -122,7 +130,7 @@ export default function AppNavbar() {
           </NavbarBrand>
         </NavbarContent>
 
-        {/* 🖥️ MIDDLE LINKS LAYER (Adapts to medium viewports) */}
+        {/* 🖥️ MIDDLE LINKS LAYER */}
         <NavbarContent className="hidden md:flex gap-1 lg:gap-2 mx-2" justify="center">
           <NavbarItem>
             <Link href="/" className={getLinkClass("/")}>
@@ -135,7 +143,6 @@ export default function AppNavbar() {
             </Link>
           </NavbarItem>
           <NavbarItem>
-            {/* Fixed the mapping context bug here to reference the dashboard directory */}
             <Link href="/dashboard" className={getLinkClass("/dashboard")}>
               Dashboard
             </Link>
@@ -156,7 +163,10 @@ export default function AppNavbar() {
             </Button>
           </NavbarItem>
 
-          {isLoggedIn ? (
+          {/* লোডিং এর সময় UI ব্লিঙ্ক করা বন্ধ করতে কন্ডিশন আপডেট করা হয়েছে */}
+          {isPending ? (
+            <NavbarItem className="w-10 h-10" /> // ডাটা লোড হওয়ার সময় ফাঁকা জায়গা রাখবে
+          ) : isLoggedIn ? (
             <Dropdown placement="bottom-end" backdrop="blur">
               <NavbarItem>
                 <DropdownTrigger>
@@ -238,72 +248,88 @@ export default function AppNavbar() {
 
           <div className="w-full my-2 border-t border-divider/60" />
 
-          {isLoggedIn ? (
-            <>
-              <div className="flex items-center gap-3 px-4 py-3 mb-2 rounded-xl bg-default-50 dark:bg-zinc-900/50">
-                <Avatar src={user?.image} name={user?.name} className="w-10 h-10 object-cover flex-shrink-0" />
-                <div className="flex flex-col min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-default-900 dark:text-white truncate">{user?.name}</p>
-                  <p className="text-xs text-default-400 truncate">{user?.email}</p>
-                </div>
-              </div>
+      
 
-              <NavbarMenuItem>
-                <Link 
-                  href={`/dashboard/${user?.role || 'user'}`}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-default-700 dark:text-zinc-300 font-medium text-base hover:bg-default-50 dark:hover:bg-zinc-900/50"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <LayoutDashboard size={18} className="text-default-500" />
-                  <span>Dashboard Overview</span>
-                </Link>
-              </NavbarMenuItem>
+          {/* Mobile Auth Section */}
+{isPending ? (
+  <div className="h-10" />
+) : isLoggedIn ? (
+  <>
+    <div className="flex items-center gap-3 px-4 py-3 mb-2 rounded-xl bg-default-50 dark:bg-zinc-900/50">
+      <Avatar
+        src={user?.image}
+        referrerPolicy="no-referrer"
+        name={user?.name}
+        className="w-10 h-10 object-cover flex-shrink-0"
+      />
 
-              <NavbarMenuItem>
-                <Link 
-                  href="/dashboard/profile" 
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-default-700 dark:text-zinc-300 font-medium text-base hover:bg-default-50 dark:hover:bg-zinc-900/50"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <User size={18} className="text-default-500" />
-                  <span>My Profile Settings</span>
-                </Link>
-              </NavbarMenuItem>
+      <div className="flex flex-col min-w-0 flex-1">
+        <p className="text-sm font-semibold text-default-900 dark:text-white truncate">
+          {user?.name}
+        </p>
+        <p className="text-xs text-default-400 truncate">
+          {user?.email}
+        </p>
+      </div>
+    </div>
 
-              <NavbarMenuItem>
-                <button 
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-danger font-medium text-base text-left hover:bg-danger-50 dark:hover:bg-danger-950/20"
-                >
-                  <LogOut size={18} />
-                  <span>Log Out</span>
-                </button>
-              </NavbarMenuItem>
-            </>
-          ) : (
-            <div className="mt-4 flex flex-col gap-2 pt-2">
-              <NavbarMenuItem>
-                <Link 
-                  href="/login" 
-                  className="w-full text-center block py-3 rounded-xl border border-divider font-medium text-default-700 dark:text-zinc-300 bg-transparent hover:bg-default-50"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Login
-                </Link>
-              </NavbarMenuItem>
-              <NavbarMenuItem>
-                <Button 
-                  as={Link} 
-                  href="/signup" 
-                  color="primary" 
-                  className="w-full py-6 rounded-xl font-medium"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Sign Up
-                </Button>
-              </NavbarMenuItem>
-            </div>
-          )}
+    <NavbarMenuItem>
+      <Link
+        href={`/dashboard/${user?.role || "user"}`}
+        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-default-700 dark:text-zinc-300 font-medium text-base hover:bg-default-50 dark:hover:bg-zinc-900/50"
+        onClick={() => setIsMenuOpen(false)}
+      >
+        <LayoutDashboard size={18} className="text-default-500" />
+        <span>Dashboard Overview</span>
+      </Link>
+    </NavbarMenuItem>
+
+    <NavbarMenuItem>
+      <Link
+        href="/dashboard/profile"
+        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-default-700 dark:text-zinc-300 font-medium text-base hover:bg-default-50 dark:hover:bg-zinc-900/50"
+        onClick={() => setIsMenuOpen(false)}
+      >
+        <User size={18} className="text-default-500" />
+        <span>My Profile Settings</span>
+      </Link>
+    </NavbarMenuItem>
+
+    <NavbarMenuItem>
+      <button
+        onClick={handleLogout}
+        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-danger font-medium text-base text-left hover:bg-danger-50 dark:hover:bg-danger-950/20"
+      >
+        <LogOut size={18} />
+        <span>Log Out</span>
+      </button>
+    </NavbarMenuItem>
+  </>
+) : (
+  <div className="mt-4 flex flex-col gap-2 pt-2">
+    <NavbarMenuItem>
+      <Link
+        href="/login"
+        className="w-full text-center block py-3 rounded-xl border border-divider font-medium text-default-700 dark:text-zinc-300 bg-transparent hover:bg-default-50"
+        onClick={() => setIsMenuOpen(false)}
+      >
+        Login
+      </Link>
+    </NavbarMenuItem>
+
+    <NavbarMenuItem>
+      <Button
+        as={Link}
+        href="/signup"
+        color="primary"
+        className="w-full py-6 rounded-xl font-medium"
+        onClick={() => setIsMenuOpen(false)}
+      >
+        Sign Up
+      </Button>
+    </NavbarMenuItem>
+  </div>
+)}
         </NavbarMenu>
       </Navbar>
     </div>
