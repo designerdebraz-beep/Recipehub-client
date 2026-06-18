@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@gravity-ui/icons": "^2.18.0",
     "@heroui/avatar": "^2.2.26",
     "@heroui/badge": "^2.2.18",
     "@heroui/button": "^2.2.32",
