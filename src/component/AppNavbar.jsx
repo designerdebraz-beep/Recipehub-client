@@ -89,10 +89,10 @@ export default function AppNavbar() {
           />
 
           <NavbarBrand as={Link} href="/" className="cursor-pointer select-none items-center gap-2 max-w-fit">
-            <div className="relative w-8 h-8 flex items-center justify-center overflow-hidden rounded-xl bg-black dark:bg-white p-1.5 transition-colors">
+            <div className="relative w-5xl h-5xl flex items-center justify-center overflow-hidden rounded-xl  dark:bg-white p-1.5 transition-colors">
               <Image
-                width={32}
-                height={32}
+                width={200}
+                height={200}
                 src="/Logo.png"
                 alt="logo"
                 className="object-contain dark:invert"
@@ -111,10 +111,10 @@ export default function AppNavbar() {
             href="/"
             className="cursor-pointer text-default-900 dark:text-white select-none items-center gap-3 hover:opacity-90 transition-opacity"
           >
-            <div className="relative w-9 h-9 flex items-center justify-center overflow-hidden rounded-xl bg-black dark:bg-white p-1.5 transition-colors">
+            <div className="relative w-10 h-10 flex items-center justify-center overflow-hidden rounded-xl dark:bg-white p-1.5 transition-colors">
               <Image
-                width={32}
-                height={32}
+                width={100}
+                height={100}
                 src="/Logo.png"
                 alt="logo"
                 className="object-contain dark:invert"
@@ -134,14 +134,15 @@ export default function AppNavbar() {
             </Link>
           </NavbarItem>
           <NavbarItem>
-            <Link href="/browse-products" className={getLinkClass("/browse-products")}>
-              Browse Products
+            <Link href="/recipes" className={getLinkClass("/recipes")}>
+             Browse Recipes
             </Link>
           </NavbarItem>
           <NavbarItem>
-            <Link href="/dashboard/user" className={getLinkClass("/dashboard")}>
+            <Link href={`/dashboard/${user?.role}`} className={getLinkClass("/dashboard")}>
               Dashboard
             </Link>
+           
           </NavbarItem>
         </NavbarContent>
 
@@ -192,7 +193,7 @@ export default function AppNavbar() {
                 <DropdownItem key="dashboard" startContent={<LayoutDashboard size={15} className="text-default-500" />} as={Link} href={`/dashboard/${user?.role || 'user'}`} className="rounded-xl py-2">
                   User Dashboard
                 </DropdownItem>
-                <DropdownItem key="profile" startContent={<User size={15} className="text-default-500" />} as={Link} href="/dashboard/profile" className="rounded-xl py-2">
+                <DropdownItem key="profile" startContent={<User size={15} className="text-default-500" />} as={Link} href={`/dashboard/${user?.role}`} className="rounded-xl py-2">
                   My Profile
                 </DropdownItem>
                 <DropdownItem key="logout" color="danger" className="text-danger rounded-xl py-2 mt-1 bg-danger-50/50 hover:bg-danger/10" startContent={<LogOut size={15} />} onClick={handleLogout}>
@@ -231,24 +232,25 @@ export default function AppNavbar() {
 
           <NavbarMenuItem>
             <Link
-              href="/browse-products"
-              className={getLinkClass("/browse-products", true)}
+              href="/recipes"
+              className={getLinkClass("/recipes", true)}
               onClick={() => setIsMenuOpen(false)}
             >
-              <span>Browse Products</span>
+              <span>Browse Recipes</span>
               <ChevronRight size={16} className="text-default-400" />
             </Link>
           </NavbarMenuItem>
 
           <NavbarMenuItem>
             <Link
-              href="/dashboard/user"
+              href={`/dashboard/${user?.role}`}
               className={getLinkClass("/dashboard", true)}
               onClick={() => setIsMenuOpen(false)}
             >
               <span>Dashboard</span>
               <ChevronRight size={16} className="text-default-400" />
             </Link>
+          
           </NavbarMenuItem>
 
           <div className="w-full my-2 border-t border-default-200/60 dark:border-zinc-800/60" />
