@@ -20,7 +20,6 @@ export default async function DashBoardSideber() {
   const dashBoardItams = {
     user: [
       { icon: House, label: "Home", Link: "/dashboard/user" },
-      { icon: House, label: "Overview", Link: "/dashboard/user/overview" },
       { icon: Magnifier, label: "My Recipes", Link: "/dashboard/user/myrecipes" },
       { icon: House, label: "Add Recipe", Link: "/dashboard/user/addrecipe" },
       { icon: House, label: "My Buy recipes", Link: "/dashboard/user/mypurchasedrecipes" },

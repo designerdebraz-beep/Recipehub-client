@@ -119,7 +119,7 @@ console.log(token.token)
 
   return (
     <Modal>
-      <Button variant="secondary">Add New Recipe</Button>
+      <Button className='text-3xl bg-pink-700 text-white py-6 px-6'>Add New Recipe</Button>
       <Modal.Backdrop>
         <Modal.Container placement="auto">
           <Modal.Dialog className="sm:max-w-md max-h-[90vh] overflow-y-auto">
@@ -242,7 +242,7 @@ console.log(token.token)
               <Button slot="close" variant="secondary" disabled={isSubmitting}>
                 Cancel
               </Button>
-              <Button type="submit" form="recipeForm" disabled={isSubmitting}>
+              <Button className='text-xl bg-pink-700 text-white' type="submit" form="recipeForm" disabled={isSubmitting}>
                 {isSubmitting ? 'Saving...' : 'Save Recipe'}
               </Button>
             </Modal.Footer>

@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { FormModel } from '@/component/Dashboard/FormModel';
 
 const ProfilePage = async () => {
   const session = await auth.api.getSession({
@@ -16,6 +17,17 @@ const ProfilePage = async () => {
   if (!user) {
     redirect('/login');
   }
+
+
+  const res = await fetch(
+    `http://localhost:5000/api/my-recipes/${user.id}`,
+    {
+      cache: "no-store"
+    }
+  );
+
+  const recipes = await res.json();
+
 
   // Format the date
   const formatDate = (dateString) => {
@@ -116,7 +128,7 @@ const ProfilePage = async () => {
             {/* Profile Stats */}
             <div className="grid grid-cols-3 gap-4 mt-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
               <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">0</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white"> {recipes.length}</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Recipes</p>
               </div>
               <div className="text-center border-x border-gray-200 dark:border-gray-600">
@@ -156,19 +168,20 @@ const ProfilePage = async () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="mt-8 flex flex-col sm:flex-row gap-3">
-              <button className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            <div className="mt-8 flex flex-col sm:flex-row gap-3 text-center">
+              <div className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                 <svg className="inline w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
-                Edit Profile
-              </button>
-              <button className="flex-1 px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 font-medium rounded-lg transition-colors duration-200 border border-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                {/* Edit Profile */}
+                <FormModel></FormModel>
+              </div>
+              {/* <button className="flex-1 px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 font-medium rounded-lg transition-colors duration-200 border border-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
                 <svg className="inline w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
                 Sign Out
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
@@ -193,7 +206,7 @@ const ProfilePage = async () => {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6">
+          {/* <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Quick Actions
             </h2>
@@ -236,7 +249,7 @@ const ProfilePage = async () => {
                 <span className="text-xs font-medium text-gray-700 dark:text-gray-300 mt-1 block">Help</span>
               </Link>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

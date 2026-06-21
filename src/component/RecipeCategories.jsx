@@ -11,9 +11,9 @@ export default function RecipeCategories() {
   return (
     <section className="max-w-7xl mx-auto px-4 py-16">
       <div className="text-center mb-10">
-        <h2 className="text-4xl font-bold">Browse by Category</h2>
+        <h2 className="text-4xl font-bold">Best Featured Category</h2>
         <p className="text-gray-500 mt-3">
-          Discover recipes based on your favorite categories.
+          Discover Our Best Featured Category.
         </p>
       </div>
 
@@ -21,7 +21,7 @@ export default function RecipeCategories() {
         {categories.map((category) => (
           <div
             key={category.name}
-            className="bg-white border rounded-2xl p-6 text-center shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer"
+            className="bg-white border rounded-2xl p-6 text-center shadow-sm hover:shadow-lg transition-all duration-300 "
           >
             <div className="text-5xl mb-3">{category.icon}</div>
             <h3 className="font-semibold text-lg">{category.name}</h3>
