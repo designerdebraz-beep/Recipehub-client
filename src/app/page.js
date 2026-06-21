@@ -3,6 +3,9 @@ import { Button } from "@heroui/button";
 import { Link } from "@heroui/link";
 import { ArrowRight, UtensilsCrossed } from "lucide-react";
 import FeaturedRecipes from "@/component/FeaturedRecipes";
+import PopularRecipe from "@/component/PopularRecipe";
+import RecipeCategories from "../component/RecipeCategories";
+import TopContributors from "@/component/TopContributors";
 
 export default function Home() {
   return (
@@ -95,6 +98,10 @@ export default function Home() {
       </section>
 
       <FeaturedRecipes></FeaturedRecipes>
+
+      <PopularRecipe></PopularRecipe>
+      <RecipeCategories></RecipeCategories>
+      <TopContributors></TopContributors>
     </div>
   );
 }
