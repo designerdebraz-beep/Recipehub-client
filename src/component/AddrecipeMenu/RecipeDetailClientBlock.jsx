@@ -21,7 +21,7 @@ export default function RecipeDetailClientBlock({ initialRecipe }) {
   const router = useRouter();
   
   // Dynamic tracking states 
-  const [likes, setLikes] = useState(42);
+  const [likes, setLikes] = useState(0);
   const [hasLiked, setHasLiked] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   
@@ -198,7 +198,7 @@ export default function RecipeDetailClientBlock({ initialRecipe }) {
       </div>
 
       {/* HeroUI overlay context template module window for reporting */}
-      {isReportModalOpen && (
+      {/* {isReportModalOpen && (
         <Modal onClose={() => setIsReportModalOpen(false)}>
           <Modal.Backdrop>
             <Modal.Container>
@@ -231,7 +231,83 @@ export default function RecipeDetailClientBlock({ initialRecipe }) {
             </Modal.Container>
           </Modal.Backdrop>
         </Modal>
-      )}
+      )} */}
+      <Modal
+  isOpen={isReportModalOpen}
+  onOpenChange={setIsReportModalOpen}
+>
+  <Modal.Backdrop>
+    <Modal.Container>
+      <Modal.Dialog className="sm:max-w-md">
+
+        <Modal.CloseTrigger />
+
+        <Modal.Header>
+          <Modal.Heading>
+            Report Content Form
+          </Modal.Heading>
+
+          <p className="mt-1 text-xs text-muted">
+            Provide accurate descriptions of issues found.
+          </p>
+        </Modal.Header>
+
+
+        <Modal.Body className="p-5">
+
+          <form
+            id="detailsReportForm"
+            onSubmit={handleReportFormSubmit}
+            className="flex flex-col gap-4"
+          >
+
+            <TextField className="w-full">
+
+              <Label>
+                Reason context statement
+              </Label>
+
+
+              <Input
+                value={reportReason}
+                onChange={(e)=>setReportReason(e.target.value)}
+                placeholder="Enter reason..."
+                required
+              />
+
+            </TextField>
+
+
+          </form>
+
+        </Modal.Body>
+
+
+        <Modal.Footer>
+
+          <Button
+            variant="secondary"
+            onClick={()=>setIsReportModalOpen(false)}
+          >
+            Dismiss
+          </Button>
+
+
+          <Button onClick={() => setIsReportModalOpen(true)}
+            type="submit"
+            form="detailsReportForm"
+            className="bg-danger text-danger-foreground"
+          >
+            Submit Report
+          </Button>
+
+        </Modal.Footer>
+
+
+      </Modal.Dialog>
+    </Modal.Container>
+  </Modal.Backdrop>
+</Modal>
     </div>
   );
 }

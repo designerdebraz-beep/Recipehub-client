@@ -6,8 +6,32 @@ import {
   User,
   ChefHat,
 } from "lucide-react";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
-const UserDashboard = () => {
+const UserDashboard = async () => {
+
+  const session = await auth.api.getSession({
+      headers: await headers()
+    });
+    
+    const user = session?.user;
+    
+    // If no user, redirect to login
+    if (!user) {
+      redirect('/login');
+    }
+
+const res = await fetch(
+    `http://localhost:5000/api/my-recipes/${user.id}`,
+    {
+      cache: "no-store"
+    }
+  );
+
+  const recipes = await res.json();
+  console.log(recipes)
+
   return (
     <div className="p-6 space-y-8">
       {/* Welcome Section */}
@@ -22,19 +46,19 @@ const UserDashboard = () => {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <div className="bg-white rounded-2xl shadow p-6">
           <BookOpen className="w-10 h-10 text-blue-600" />
-          <h3 className="mt-4 text-3xl font-bold">3</h3>
+          <h3 className="mt-4 text-3xl font-bold"> {recipes.length}</h3>
           <p className="text-gray-500">My Recipes</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow p-6">
           <Heart className="w-10 h-10 text-red-500" />
-          <h3 className="mt-4 text-3xl font-bold">48</h3>
+          <h3 className="mt-4 text-3xl font-bold">0</h3>
           <p className="text-gray-500">Favorites</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow p-6">
           <ChefHat className="w-10 h-10 text-green-600" />
-          <h3 className="mt-4 text-3xl font-bold">320</h3>
+          <h3 className="mt-4 text-3xl font-bold">0</h3>
           <p className="text-gray-500">Total Likes</p>
         </div>
 
@@ -68,7 +92,7 @@ const UserDashboard = () => {
       </div> */}
 
       {/* Recent Recipes */}
-      <div className="bg-white rounded-2xl shadow p-6">
+      {/* <div className="bg-white rounded-2xl shadow p-6">
         <h2 className="text-xl font-bold mb-4">Recent Recipes</h2>
 
         <div className="overflow-x-auto">
@@ -118,7 +142,7 @@ const UserDashboard = () => {
             </tbody>
           </table>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
