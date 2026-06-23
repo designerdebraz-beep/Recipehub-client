@@ -31,6 +31,7 @@ export default async function DashBoardSideber() {
       { icon: House, label: "Manage Users", Link: "/dashboard/admin/manageusers" },
       { icon: Magnifier, label: "Manage Recipes", Link: "/dashboard/admin/managerecipes" },
       { icon: House, label: "Reports", Link: "/dashboard/admin/reports" },
+      { icon: House, label: "Transaction", Link: "/dashboard/admin/transaction" },
 
     ],
 
