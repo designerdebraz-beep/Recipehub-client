@@ -129,12 +129,42 @@ export default function RecipeDetailClientBlock({ initialRecipe }) {
     }
   };
 
-  const handleStripePurchaseAction = async () => {
+ const handleStripePurchaseAction = async () => {
     setIsStripeProcessing(true);
     try {
-      alert(`Initializing Secure Stripe Session for "${initialRecipe.recipeName}" Premium access token...`);
+      const session = await authClient.getSession();
+      const userEmail = session?.data?.user?.email;
+
+      if (!userEmail) {
+        alert("Please login first to purchase this recipe!");
+        return;
+      }
+
+      // ব্যাকএন্ডের স্ট্রাইপ সেশন এপিআই কল
+      const res = await fetch("http://localhost:5000/api/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          price: 4.99, // রেসিপির প্রাইস (ডলার)
+          packageName: `Premium Recipe Blueprint: ${initialRecipe.recipeName}`,
+          recipeId: initialRecipe._id, // মেটাডাটা ট্র্যাকিংয়ের জন্য
+          userEmail: userEmail
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.url) {
+        // ইউজারকে স্ট্রাইপের সিকিউর পেমেন্ট পেজে রিডাইরেক্ট করা হচ্ছে
+        window.location.href = data.url;
+      } else {
+        alert(data.error || "Failed to initiate Stripe checkout.");
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Stripe error:", error);
+      alert("Failed to connect to the payment gateway.");
     } finally {
       setIsStripeProcessing(false);
     }

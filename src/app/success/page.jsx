@@ -2,31 +2,35 @@
 
 import React, { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation'; // 👑 searchParams এর জন্য ইমপোর্ট করা হলো
+import { useRouter, useSearchParams } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 
-// Next.js এ useSearchParams ব্যবহার করলে পুরো কম্পোনেন্টকে Suspense এর ভেতর রাখা বেস্ট প্র্যাকটিস
 const SuccessPageContent = () => {
     const router = useRouter();
-    const searchParams = useSearchParams(); // 👑 এখানে searchParams ডিক্লেয়ার করা হলো
+    const searchParams = useSearchParams();
 
     const [loading, setLoading] = useState(true);
     const [txId, setTxId] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
+
+    // ডাইনামিক স্টেট ট্র্যাকিং (কোন ধরনের পেমেন্ট তা বোঝার জন্য)
+    const [paymentType, setPaymentType] = useState('pro_plan'); // Default
+    const [purchasedRecipeId, setPurchasedRecipeId] = useState('');
 
     const BasedUrl = process.env.BasedUrl || process.env.NEXT_PUBLIC_BASED_URL || 'http://localhost:5000';
 
     useEffect(() => {
         const checkPaymentStatus = async () => {
             const paymentStatus = searchParams.get('payment');
+            const type = searchParams.get('type'); // 'recipe' or null (pro_plan)
+            const recipeId = searchParams.get('recipeId');
+            const sessionId = searchParams.get('session_id');
 
-            // ইউআরএল এ যদি ?payment=success থাকে অথবা ডিরেক্ট সাকসেস পেজে আসলে
             if (paymentStatus === 'success' || !paymentStatus) {
                 try {
                     const { data: sessionData } = await authClient.getSession();
-                    const userEmail = sessionData?.user?.email;
+                    const userEmail = sessionData?.user?.email || searchParams.get('email');
 
-                    // 🚨 ইমেইল না পাওয়া পর্যন্ত অপেক্ষা করবে
                     if (!userEmail) {
                         console.log("Waiting for user email from session...");
                         return;
@@ -35,31 +39,51 @@ const SuccessPageContent = () => {
                     const generatedTxId = `ST_TX_${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
                     setTxId(generatedTxId);
 
-                    const paymentPayload = {
-                        email: userEmail,
-                        amount: 4.99,
-                        packageName: "Premium Pass (PRO)",
-                        transactionId: generatedTxId
-                    };
+                    const { data: token } = await authClient.token();
 
-                    const { data: token } = await authClient.token(); // ফ্রন্টএন্ডে টোকেন নিন
+                    // 🍳 কন্ডিশন ১: যদি রেসিপি পারচেজ এর পেমেন্ট সাকসেস হয়
+                    if (type === 'recipe' && recipeId) {
+                        setPaymentType('recipe');
+                        setPurchasedRecipeId(recipeId);
 
-                    const response = await fetch(`${BasedUrl}/api/payments/confirm`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'authorization': `bearer ${token.token}`
-                        },
-                        body: JSON.stringify(paymentPayload)
-                    });
+                        const response = await fetch(`${BasedUrl}/api/purchased-recipes/confirm`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ sessionId, recipeId, email: userEmail })
+                        });
 
-                    if (response.ok) {
-                        setIsSuccess(true);
+                        if (response.ok) {
+                            setIsSuccess(true);
+                        }
+                    } 
+                    // 👑 কন্ডিশন ২: আগের ফিচার (PRO Plan Upgrade / Unlimited Posting Access)
+                    else {
+                        setPaymentType('pro_plan');
+                        
+                        const paymentPayload = {
+                            email: userEmail,
+                            amount: 4.99,
+                            packageName: "Premium Pass (PRO)",
+                            transactionId: generatedTxId
+                        };
+
+                        const response = await fetch(`${BasedUrl}/api/payments/confirm`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'authorization': `bearer ${token?.token}`
+                            },
+                            body: JSON.stringify(paymentPayload)
+                        });
+
+                        if (response.ok) {
+                            setIsSuccess(true);
+                        }
                     }
                 } catch (error) {
                     console.error("Error saving payment transaction:", error);
                 } finally {
-                    setLoading(false); // ডাটা লোড বা এপিআই হিট শেষ হলে লোডিং ফলস হবে
+                    setLoading(false);
                 }
             } else {
                 setLoading(false);
@@ -74,7 +98,7 @@ const SuccessPageContent = () => {
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
                 <div className="text-center space-y-3">
                     <div className="w-10 h-10 border-4 border-pink-700 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                    <p className="text-gray-600 font-medium text-sm">Verifying payment & activating PRO features...</p>
+                    <p className="text-gray-600 font-medium text-sm">Verifying payment & updating credentials...</p>
                 </div>
             </div>
         );
@@ -95,15 +119,23 @@ const SuccessPageContent = () => {
                 <h2 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">
                     Payment Successful!
                 </h2>
+                
+                {/* ডাইনামিক সাবটাইটেল টেক্সট */}
                 <p className="text-gray-500 text-sm mb-8 px-2">
-                    Thank you for your purchase! Your account has been upgraded to <span className="font-bold text-pink-700">PRO Plan</span>. Now you can share your unlimited culinary magic.
+                    {paymentType === 'recipe' ? (
+                        <>Thank you for your purchase! This exclusive <span className="font-bold text-pink-700">Premium Recipe Blueprint</span> has been permanently unlocked in your collection.</>
+                    ) : (
+                        <>Thank you for your purchase! Your account has been upgraded to <span className="font-bold text-pink-700">PRO Plan</span>. Now you can share your unlimited culinary magic.</>
+                    )}
                 </p>
 
                 {/* Transaction Receipt Box */}
                 <div className="bg-gray-50 rounded-2xl p-5 text-left border border-gray-100 space-y-3 mb-8 text-sm">
                     <div className="flex justify-between border-b border-gray-200/60 pb-2.5">
                         <span className="text-gray-400 font-medium">Package</span>
-                        <span className="text-gray-800 font-bold">Premium Pass (PRO)</span>
+                        <span className="text-gray-800 font-bold">
+                            {paymentType === 'recipe' ? 'Premium Recipe Blueprint' : 'Premium Pass (PRO)'}
+                        </span>
                     </div>
                     <div className="flex justify-between border-b border-gray-200/60 pb-2.5">
                         <span className="text-gray-400 font-medium">Amount Paid</span>
@@ -111,23 +143,33 @@ const SuccessPageContent = () => {
                     </div>
                     <div className="flex justify-between border-b border-gray-200/60 pb-2.5">
                         <span className="text-gray-400 font-medium">Access</span>
-                        <span className="text-gray-800 font-medium">Unlimited Posting</span>
+                        <span className="text-gray-800 font-medium">
+                            {paymentType === 'recipe' ? 'Lifetime Card Access' : 'Unlimited Posting'}
+                        </span>
                     </div>
                     <div className="flex justify-between pt-1">
                         <span className="text-gray-400 font-medium">Transaction ID</span>
                         <span className="font-mono font-bold text-gray-700 text-xs bg-gray-200/60 px-2.5 py-1 rounded-md">
-                            {txId || "PROCESSING..."}
+                            {txId || "CONFIRED_BY_STRIPE"}
                         </span>
                     </div>
                 </div>
 
-                {/* Action Buttons */}
+                {/* Action Buttons (কন্ডিশনাল রেন্ডারিং সহ) */}
                 <div className="flex flex-col gap-3">
                     <Link
                         href="/dashboard/user/addrecipe"
                         className="w-full bg-pink-700 text-white font-semibold py-4 rounded-xl hover:bg-pink-800 shadow-lg shadow-pink-700/20 transition-all active:scale-[0.99] text-center text-sm"
                     >
                         Start Posting Recipes 🍳
+                    </Link>
+
+                    {/* 👑 রিকোয়ারমেন্ট অনুযায়ী যোগ করা নতুন বাটন */}
+                    <Link
+                        href="/dashboard/user/mypurchasedrecipes"
+                        className="w-full bg-gray-900 text-white font-semibold py-4 rounded-xl hover:bg-gray-800 shadow-lg transition-all active:scale-[0.99] text-center text-sm"
+                    >
+                        My Purchased Recipes 📚
                     </Link>
 
                     <Link
@@ -143,7 +185,6 @@ const SuccessPageContent = () => {
     );
 };
 
-// 👑 Next.js static build এর এরর এড়াতে কম্পোনেন্টটিকে Suspense দিয়ে র‍্যাপ করে এক্সপোর্ট করা হলো
 export default function Sucesspage() {
     return (
         <Suspense fallback={
