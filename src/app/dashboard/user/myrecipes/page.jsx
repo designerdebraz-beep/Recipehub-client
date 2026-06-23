@@ -19,7 +19,7 @@ const MyRecipes = () => {
         imageUrl: "",
         category: "",
         cuisineType: "",
-        difficulty: "",
+        difficultyLevel: "", // 👈 ডাটাবেজ অনুযায়ী difficultyLevel করা হলো
         prepTime: "",
         ingredients: "",
         instructions: ""
@@ -62,9 +62,9 @@ const MyRecipes = () => {
             imageUrl: recipe.imageUrl || "",
             category: recipe.category || "",
             cuisineType: recipe.cuisineType || "",
-            difficulty: recipe.difficulty || "",
+            difficultyLevel: recipe.difficultyLevel || "Easy", // 👈 ডাটাবেজ প্রোপার্টি ম্যাপিং
             prepTime: recipe.prepTime || "",
-            ingredients: recipe.ingredients || "",
+            ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients.join(", ") : recipe.ingredients || "",
             instructions: recipe.instructions || ""
         });
         setIsEditModalOpen(true);
@@ -75,17 +75,27 @@ const MyRecipes = () => {
         e.preventDefault();
 
         try {
+            // ingredients যদি স্ট্রিং হয়, তবে সেটিকে কমা অনুযায়ী অ্যারেতে কনভার্ট করা ভালো
+            const processedIngredients = typeof formData.ingredients === 'string' 
+                ? formData.ingredients.split(',').map(item => item.trim()) 
+                : formData.ingredients;
+
+            const updatedData = {
+                ...formData,
+                ingredients: processedIngredients
+            };
+
             const res = await fetch(`http://localhost:5000/api/my-recipes/${selectedRecipeId}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(updatedData),
             });
 
             if (res.ok) {
                 setRecipes(recipes.map(recipe => 
-                    recipe._id === selectedRecipeId ? { ...recipe, ...formData } : recipe
+                    recipe._id === selectedRecipeId ? { ...recipe, ...updatedData } : recipe
                 ));
                 setIsEditModalOpen(false);
                 alert("Recipe updated successfully!");
@@ -105,7 +115,7 @@ const MyRecipes = () => {
         try {
             const res = await fetch(`http://localhost:5000/api/my-recipes/${id}`, {
                 method: "DELETE",
-            });
+                });
 
             if (res.ok) {
                 setRecipes(recipes.filter((recipe) => recipe._id !== id));
@@ -165,9 +175,14 @@ const MyRecipes = () => {
                                     <span className="bg-orange-50 text-orange-600 px-3 py-1.5 rounded-full text-xs font-semibold">{recipe.category || "Breakfast"}</span>
                                 </td>
                                 <td className="py-4 px-4">
-                                    <span className="bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-full text-xs font-semibold">{recipe.difficulty || "Hard"}</span>
+                                    <span className="bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-full text-xs font-semibold">{recipe.difficultyLevel || "Easy"}</span>
                                 </td>
-                                <td className="py-4 px-4">❤️ <span className="text-xs font-bold">{recipe.likes ?? 0}</span></td>
+                                
+                                {/* 🎯 ডায়নামিক লাইক কাউণ্টার নিচে ফিক্স করা হলো */}
+                                <td className="py-4 px-4">
+                                    ❤️ <span className="text-xs font-bold">{recipe.likesCount ?? 0}</span>
+                                </td>
+
                                 <td className="py-4 px-6 text-center">
                                     <div className="flex items-center justify-center gap-2">
                                         <button onClick={() => handleView(recipe._id)} className="px-4 py-1.5 bg-gray-50 text-gray-700 text-xs font-bold rounded-lg border border-gray-200 cursor-pointer">View</button>
@@ -210,7 +225,7 @@ const MyRecipes = () => {
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Difficulty Level</label>
-                                    <select value={formData.difficulty} onChange={(e) => setFormData({...formData, difficulty: e.target.value})} className="w-full border p-2 rounded-lg text-sm">
+                                    <select value={formData.difficultyLevel} onChange={(e) => setFormData({...formData, difficultyLevel: e.target.value})} className="w-full border p-2 rounded-lg text-sm">
                                         <option value="Easy">Easy</option>
                                         <option value="Medium">Medium</option>
                                         <option value="Hard">Hard</option>
@@ -224,7 +239,7 @@ const MyRecipes = () => {
 
                             <div>
                                 <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Ingredients</label>
-                                <textarea rows="3" value={formData.ingredients} onChange={(e) => setFormData({...formData, ingredients: e.target.value})} className="w-full border p-2 rounded-lg text-sm" placeholder="List ingredients..."></textarea>
+                                <textarea rows="3" value={formData.ingredients} onChange={(e) => setFormData({...formData, ingredients: e.target.value})} className="w-full border p-2 rounded-lg text-sm" placeholder="List ingredients separated by commas..."></textarea>
                             </div>
 
                             <div>

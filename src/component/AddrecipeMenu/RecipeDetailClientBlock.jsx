@@ -43,7 +43,7 @@ export default function RecipeDetailClientBlock({ initialRecipe }) {
         const foundFav = favorites.some(fav => fav.recipeId === initialRecipe._id);
         setIsFavorite(foundFav);
 
-        // লাইক চেক (ইউজার ইতিমধ্যে এই রেসিপিতে লাইক দিয়েছে কি না)
+        // লাইক চেক (ইউজার ইতিমধ্যে এই রেসিপিতে লাইক দিয়েছে কি না)
         const likeRes = await fetch(`http://localhost:5000/api/likes/${userId}`);
         const userLikes = await likeRes.json();
         const foundLike = userLikes.some(like => like.recipeId === initialRecipe._id);
@@ -55,7 +55,7 @@ export default function RecipeDetailClientBlock({ initialRecipe }) {
     checkUserInteractions();
   }, [initialRecipe._id]);
 
-  // ডায়নামিক লাইক টগল হ্যান্ডলার
+  // ডায়নামিক লাইক টগল হ্যান্ডলার (ডিটেইলস পেজ থেকে লাইক দিলে টেবিল ডেটাও আপডেট হবে)
   const handleLikeInteraction = async () => {
     try {
       const session = await authClient.getSession();
@@ -82,7 +82,7 @@ export default function RecipeDetailClientBlock({ initialRecipe }) {
 
       if (res.ok && data.success) {
         setHasLiked(data.hasLiked);
-        // ডাটাবেজ রেসপন্স অনুযায়ী ফ্রন্টএন্ডে লাইক কাউন্ট ঠিক করা হচ্ছে
+        // ডাটাবেজ রেসপন্স ও টগল স্টেট অনুযায়ী ফ্রন্টএন্ডে লাইক কাউন্ট রিয়েল-টাইমে আপডেট করা হচ্ছে
         setLikes(prev => data.hasLiked ? prev + 1 : prev - 1);
       } else {
         alert(data.message || "Something went wrong with the like service.");
@@ -129,7 +129,7 @@ export default function RecipeDetailClientBlock({ initialRecipe }) {
     }
   };
 
- const handleStripePurchaseAction = async () => {
+  const handleStripePurchaseAction = async () => {
     setIsStripeProcessing(true);
     try {
       const session = await authClient.getSession();
@@ -140,16 +140,15 @@ export default function RecipeDetailClientBlock({ initialRecipe }) {
         return;
       }
 
-      // ব্যাকএন্ডের স্ট্রাইপ সেশন এপিআই কল
       const res = await fetch("http://localhost:5000/api/create-checkout-session", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          price: 4.99, // রেসিপির প্রাইস (ডলার)
+          price: 4.99,
           packageName: `Premium Recipe Blueprint: ${initialRecipe.recipeName}`,
-          recipeId: initialRecipe._id, // মেটাডাটা ট্র্যাকিংয়ের জন্য
+          recipeId: initialRecipe._id,
           userEmail: userEmail
         })
       });
@@ -157,7 +156,6 @@ export default function RecipeDetailClientBlock({ initialRecipe }) {
       const data = await res.json();
 
       if (res.ok && data.url) {
-        // ইউজারকে স্ট্রাইপের সিকিউর পেমেন্ট পেজে রিডাইরেক্ট করা হচ্ছে
         window.location.href = data.url;
       } else {
         alert(data.error || "Failed to initiate Stripe checkout.");
@@ -232,6 +230,7 @@ export default function RecipeDetailClientBlock({ initialRecipe }) {
           </div>
 
           <div className="flex flex-wrap gap-3 mt-2">
+            {/* লাইক বাটন */}
             <Button
               onClick={handleLikeInteraction}
               variant={hasLiked ? "solid" : "secondary"}
