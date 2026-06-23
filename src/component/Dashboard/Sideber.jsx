@@ -19,18 +19,17 @@ export default async function DashBoardSideber() {
 
   const dashBoardItams = {
     user: [
-      { icon: House, label: "Home", Link: "/dashboard/user" },
+      { icon: House, label: "Overview", Link: "/dashboard/user" },
       { icon: Magnifier, label: "My Recipes", Link: "/dashboard/user/myrecipes" },
       { icon: House, label: "Add Recipe", Link: "/dashboard/user/addrecipe" },
-      { icon: House, label: "My Buy recipes", Link: "/dashboard/user/mypurchasedrecipes" },
-      { icon: House, label: "transtion", Link: "/dashboard/user/transtion" },
+      { icon: House, label: "My purchased recipes", Link: "/dashboard/user/mypurchasedrecipes" },
+      { icon: House, label: "My Favorites", Link: "/dashboard/user/myfavorites" },
       { icon: Person, label: "Profile", Link: "/dashboard/user/Profile" }
     ],
     admin: [
-      { icon: House, label: "Home", Link: "/dashboard/admin" },
+      { icon: House, label: "Overview", Link: "/dashboard/admin" },
       { icon: House, label: "Manage Users", Link: "/dashboard/admin/manageusers" },
       { icon: Magnifier, label: "Manage Recipes", Link: "/dashboard/admin/managerecipes" },
-      { icon: House, label: "Add Recipe", Link: "/dashboard/admin/addrecipe" },
       { icon: House, label: "Reports", Link: "/dashboard/admin/reports" },
 
     ],

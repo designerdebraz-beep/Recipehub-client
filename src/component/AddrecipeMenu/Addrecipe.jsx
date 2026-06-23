@@ -225,7 +225,7 @@ export default function AddRecipeMenu() {
     }
   };
 
-  const isLocked = recipeCount >= 3 && userPlan !== 'pro';
+  const isLocked = recipeCount >= 2 && userPlan !== 'pro';
 
   if (showSuccessPage) {
     return (
@@ -282,7 +282,7 @@ export default function AddRecipeMenu() {
                 <div className="mt-1.5 text-sm leading-5 text-muted">
                   Fill in the details below to add a new recipe to your collection. 
                   <span className="block font-semibold text-orange-600 mt-1">
-                    {userPlan === 'pro' ? "👑 PRO Plan Active (Unlimited Posts)" : `(Remaining free posts: ${Math.max(0, 3 - recipeCount)})`}
+                    {userPlan === 'pro' ? "👑 PRO Plan Active (Unlimited Posts)" : `(Remaining free posts: ${Math.max(0, 2 - recipeCount)})`}
                   </span>
                 </div>
               </Modal.Header>
