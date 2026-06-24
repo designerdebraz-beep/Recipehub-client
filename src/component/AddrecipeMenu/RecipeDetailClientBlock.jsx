@@ -26,7 +26,8 @@ export default function RecipeDetailClientBlock({ initialRecipe }) {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [reportReason, setReportReason] = useState("");
+const [reportReason, setReportReason] = useState(""); // রেডিও বাটনের ভ্যালু
+const [additionalDetails, setAdditionalDetails] = useState(""); // টেক্সট এরিয়ার ভ্যালু
   const [isStripeProcessing, setIsStripeProcessing] = useState(false);
 
   // পেজ লোড হওয়ার সময় ফেভারিট এবং লাইক স্ট্যাটাস চেক করা
@@ -179,12 +180,57 @@ const handleFavoriteToggle = async () => {
     }
   };
 
-  const handleReportFormSubmit = (e) => {
+// ব্যাকএন্ডে রিপোর্ট পাঠানোর জন্য আপডেটেড সাবমিট হ্যান্ডলার
+  const handleReportFormSubmit = async (e) => {
     e.preventDefault();
-    if (!reportReason.trim()) return;
-    alert(`Thank you. A flag entry has been opened for investigation detailing: "${reportReason}"`);
-    setReportReason("");
-    setIsReportModalOpen(false);
+    
+    if (!reportReason) {
+      alert("Please select a reason for reporting.");
+      return;
+    }
+
+    try {
+      // ১. কারেন্ট সেশন থেকে ইউজারের ইমেইল নেওয়া হচ্ছে
+      const session = await authClient.getSession();
+      const userEmail = session?.data?.user?.email;
+
+      if (!userEmail) {
+        alert("Please login first to report this recipe!");
+        return;
+      }
+
+      // ২. ব্যাকএন্ড API-তে ডাটা পাঠানো হচ্ছে
+      const res = await fetch("http://localhost:5000/api/reports", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          recipeId: initialRecipe._id,        // রেসিপির আইডি
+          reporterEmail: userEmail,            // ইউজারের ইমেইল
+          reason: reportReason,                // সিলেক্টেড রিজন
+          additionalDetails: additionalDetails // অপশনাল টেক্সট ফিল্ড
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        // সফল হলে মেসেজ দেখাবে
+        alert("Thank you. This recipe has been flagged and reported for investigation.");
+        
+        // স্টেট রিসেট এবং মোডাল ক্লোজ
+        setReportReason("");
+        setAdditionalDetails("");
+        setIsReportModalOpen(false);
+      } else {
+        alert(data.message || "Failed to submit report backend side.");
+      }
+
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      alert("Failed to connect to the server. Please try again later.");
+    }
   };
 
   return (
@@ -315,33 +361,109 @@ const handleFavoriteToggle = async () => {
       </div>
 
       {/* Report Modal */}
-      <Modal isOpen={isReportModalOpen} onOpenChange={setIsReportModalOpen}>
-        <Modal.Backdrop>
-          <Modal.Container>
-            <Modal.Dialog className="sm:max-w-md">
-              <Modal.CloseTrigger />
-              <Modal.Header>
-                <Modal.Heading>Report Content Form</Modal.Heading>
-                <p className="mt-1 text-xs text-muted">Provide accurate descriptions of issues found.</p>
-              </Modal.Header>
-              <Modal.Body className="p-5">
-                <form id="detailsReportForm" onSubmit={handleReportFormSubmit} className="flex flex-col gap-4">
-                  <TextField className="w-full">
-                    <Label>Reason context statement</Label>
-                    <Input value={reportReason} onChange={(e) => setReportReason(e.target.value)} placeholder="Enter reason..." required />
-                  </TextField>
-                </form>
-              </Modal.Body>
-              <Modal.Footer>
-                <Button variant="secondary" onClick={() => setIsReportModalOpen(false)}>Dismiss</Button>
-                <Button type="submit" form="detailsReportForm" className="bg-danger text-danger-foreground">
-                  Submit Report
-                </Button>
-              </Modal.Footer>
-            </Modal.Dialog>
-          </Modal.Container>
-        </Modal.Backdrop>
-      </Modal>
+      {/* Report Modal */}
+<Modal isOpen={isReportModalOpen} onOpenChange={setIsReportModalOpen}>
+  <Modal.Backdrop>
+    <Modal.Container>
+      <Modal.Dialog className="sm:max-w-lg bg-white rounded-3xl p-6 shadow-xl border-none">
+        
+        {/* Header with Title and Close Trigger */}
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+            🚨 Report Recipe
+          </h2>
+          <button 
+            onClick={() => setIsReportModalOpen(false)}
+            className="text-muted-foreground hover:text-foreground text-xl p-1 transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+
+        <p className="text-sm font-medium text-muted-foreground mb-4">
+          Reporting: <span className="text-foreground font-bold">{initialRecipe.recipeName}</span>
+        </p>
+
+        {/* Form Body */}
+        <form id="detailsReportForm" onSubmit={handleReportFormSubmit} className="flex flex-col gap-5">
+          
+          {/* Reason Section */}
+          <div className="flex flex-col gap-3">
+            <label className="text-sm font-bold text-foreground">
+              Reason <span className="text-danger">*</span>
+            </label>
+            
+            {/* Radio Options */}
+            <div className="flex flex-col gap-2.5">
+              {[
+                { id: 'spam', label: 'Spam' },
+                { id: 'offensive', label: 'Offensive Content' },
+                { id: 'copyright', label: 'Copyright Issue' }
+              ].map((option) => (
+                <label 
+                  key={option.id}
+                  className={`flex items-center gap-3 px-4 py-3.5 border rounded-xl cursor-pointer transition-all ${
+                    reportReason === option.label 
+                      ? 'border-foreground bg-secondary-soft/30 font-semibold' 
+                      : 'border-border hover:border-muted'
+                  }`}
+                >
+                  <input 
+                    type="radio" 
+                    name="reportReason" 
+                    value={option.label}
+                    checked={reportReason === option.label}
+                    onChange={(e) => setReportReason(e.target.value)}
+                    className="w-4 h-4 accent-foreground cursor-pointer"
+                    required
+                  />
+                  <span className="text-sm text-foreground">{option.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Additional Details TextArea */}
+          <div className="flex flex-col gap-2 mt-2">
+            <label className="text-sm font-bold text-foreground">
+              Additional Details (optional)
+            </label>
+            <textarea 
+              value={additionalDetails}
+              onChange={(e) => setAdditionalDetails(e.target.value)}
+              placeholder="Provide more context..."
+              rows={4}
+              className="w-full px-4 py-3 text-sm border border-border rounded-xl resize-none focus:outline-none focus:border-foreground transition-colors placeholder:text-muted-foreground"
+            />
+          </div>
+
+          {/* Footer Action Buttons */}
+          <div className="flex gap-4 mt-4">
+            <Button 
+              type="button"
+              variant="bordered" 
+              onClick={() => {
+                setReportReason("");
+                setAdditionalDetails("");
+                setIsReportModalOpen(false);
+              }}
+              className="flex-1 font-bold border-border rounded-xl py-6"
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              className="flex-1 bg-[#F04438] text-white hover:bg-[#D9382E] font-bold rounded-xl py-6 transition-colors shadow-sm"
+            >
+              Submit Report
+            </Button>
+          </div>
+
+        </form>
+      </Modal.Dialog>
+    </Modal.Container>
+  </Modal.Backdrop>
+</Modal>
     </div>
   );
 }
