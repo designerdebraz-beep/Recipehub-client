@@ -9,7 +9,7 @@ const Managerecipes = () => {
     // console.log(recipes)
 
     // আপনার রিয়েল এক্সপ্রেস সার্ভারের পোর্ট বা রুট (প্রয়োজনে পরিবর্তন করে নেবেন)
-    const BASE_URL = "http://localhost:5000"; 
+    const BASE_URL = process.env.NEXT_PUBLIC_BETTER_AUTH_URL; 
 
     // ১. ব্যাকএন্ড থেকে রেসিপি ডেটা ফেচ করা
     const fetchRecipes = async () => {

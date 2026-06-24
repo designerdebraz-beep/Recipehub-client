@@ -17,7 +17,7 @@ const Adminpage = () => {
     useEffect(() => {
         const fetchAdminStats = async () => {
             try {
-                const res = await fetch("http://localhost:5000/api/admin-stats");
+                const res = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/admin-stats`);
                 const data = await res.json();
                 
                 if (data.success) {

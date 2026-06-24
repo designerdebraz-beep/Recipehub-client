@@ -16,7 +16,7 @@ const FeaturedRecipes = () => {
     const fetchFeaturedRecipes = async () => {
         try {
             // আপনার মেইন এপিআই রুট (যা দিয়ে সব রেসিপি আসে)
-            const response = await fetch('http://localhost:5000/api/recipes');
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/recipes`);
 
             if (!response.ok) {
                 throw new Error('Failed to fetch recipes');

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { authClient } from '@/lib/auth-client';
 
 const Manageusers = () => {
     const [users, setUsers] = useState([]);
@@ -9,14 +10,20 @@ const Manageusers = () => {
     const [currentUserRole, setCurrentUserRole] = useState("Admin"); // সেশন বা কনটেক্সট থেকে আসবে
 
     // ব্যাকএন্ড বেস ইউআরএল (আপনার এক্সপ্রেস সার্ভারের পোর্ট)
-    const BASE_URL = "http://localhost:5000";
+    const BASE_URL = process.env.NEXT_PUBLIC_BETTER_AUTH_URL;
 
     // ১. ইউজার কালেকশন থেকে সমস্ত ইউজারের ডেটা ফেচ করা
     useEffect(() => {
         const fetchUsersData = async () => {
             try {
+                const {data:jwtdata} = await authClient.token()
+                console.log(jwtdata)
                 // আপনার ব্যাকএন্ড এপিআই পাথ ছিল /api/users (s সহ)
-                const response = await fetch(`${BASE_URL}/api/users`);
+                const response = await fetch(`${BASE_URL}/api/users`,{
+                    headers: {
+                        Authorization: `Bearer ${jwtdata?.token}`
+                    }
+                });
                 const data = await response.json();
                 setUsers(Array.isArray(data) ? data : []);
                 setLoading(false);
@@ -30,44 +37,53 @@ const Manageusers = () => {
     }, []);
 
     // ২. নির্দিষ্ট ইউজারকে ব্লক বা আনব্লক করার হ্যান্ডলার
-    const toggleBlockStatus = async (userId, currentStatus) => {
-        if (currentUserRole !== "Admin") {
-            alert("শুধুমাত্র Admin-রাই ইউজারদের ব্লক বা আনব্লক করতে পারবেন!");
-            return;
+    // ২. নির্দিষ্ট ইউজারকে ব্লক বা আনব্লক করার হ্যান্ডলার
+const toggleBlockStatus = async (userId, currentStatus) => {
+    if (currentUserRole !== "Admin") {
+        alert("শুধুমাত্র Admin-রাই ইউজারদের ব্লক বা আনব্লক করতে পারবেন!");
+        return;
+    }
+
+    const newStatus = currentStatus === "Active" ? "Blocked" : "Active";
+
+    try {
+        // Better-Auth ক্লায়েন্ট থেকে টোকেন নিয়ে আসা
+        const { data: jwtdata } = await authClient.token();
+
+        // সঠিক পোর্টে PATCH রিকোয়েস্ট পাঠানো
+        const response = await fetch(`${BASE_URL}/api/users/${userId}/status`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                // টোকেনটি এখানে যুক্ত করা হলো ⚡
+                'Authorization': `Bearer ${jwtdata?.token}` 
+            },
+            body: JSON.stringify({ status: newStatus }),
+        });
+
+        if (response.ok) {
+            alert(`User status updated to ${newStatus}`);
+
+            // ক্লায়েন্ট সাইড স্টেটে ইউজারের স্ট্যাটাস সাথে সাথে রিয়েল-টাইম আপডেট করা
+            setUsers(prevUsers =>
+                prevUsers.map(user => {
+                    const id = user._id?.$oid || user._id;
+                    if (id === userId) {
+                        return { ...user, status: newStatus };
+                    }
+                    return user;
+                })
+            );
+        } else {
+            // ব্যাকএন্ড থেকে আসা এরর মেসেজ দেখতে এটি কনসোলে লগ করতে পারেন
+            const errorData = await response.json().catch(() => ({}));
+            console.error("Backend Error Details:", errorData);
+            alert("স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে।");
         }
-
-        const newStatus = currentStatus === "Active" ? "Blocked" : "Active";
-
-        try {
-            // সঠিক পোর্টে PATCH রিকোয়েস্ট পাঠানো
-            const response = await fetch(`${BASE_URL}/api/users/${userId}/status`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ status: newStatus }),
-            });
-
-            if (response.ok) {
-                alert(`User status updated to ${newStatus}`);
-
-                // ক্লায়েন্ট সাইড স্টেটে ইউজারের স্ট্যাটাস সাথে সাথে রিয়েল-টাইম আপডেট করা
-                setUsers(prevUsers =>
-                    prevUsers.map(user => {
-                        const id = user._id?.$oid || user._id;
-                        if (id === userId) {
-                            return { ...user, status: newStatus };
-                        }
-                        return user;
-                    })
-                );
-            } else {
-                alert("স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে।");
-            }
-        } catch (error) {
-            console.error("Error updating user status:", error);
-        }
-    };
+    } catch (error) {
+        console.error("Error updating user status:", error);
+    }
+};
 
     if (loading) {
         return (

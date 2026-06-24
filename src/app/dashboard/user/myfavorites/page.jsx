@@ -31,7 +31,7 @@ useEffect(() => {
             }
 
             // যদি আপনার অথেনটিকেশন সিস্টেমে টোকেন লাগে, তবে headers-এ token পাস করবেন
-            const res = await fetch(`http://localhost:5000/api/favorites/${userId}`);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/favorites/${userId}`);
             const data = await res.json();
             
             if (Array.isArray(data)) {
@@ -63,7 +63,7 @@ useEffect(() => {
 
         try {
             // ব্যাকএন্ডের POST টগল এপিআই ব্যবহার করা হচ্ছে
-            const res = await fetch("http://localhost:5000/api/favorites", {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/favorites`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

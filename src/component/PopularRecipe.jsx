@@ -13,7 +13,7 @@ const PopularRecipe = () => {
     const fetchPopularRecipes = async () => {
       try {
         // ব্যাকএন্ড এপিআই কল
-        const response = await fetch('http://localhost:5000/api/popular-recipes?limit=8');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/popular-recipes?limit=8`);
         
         if (!response.ok) {
           throw new Error('Failed to fetch popular recipes');

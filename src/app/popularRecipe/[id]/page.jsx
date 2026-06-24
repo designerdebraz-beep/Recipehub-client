@@ -23,7 +23,7 @@ const PopularRecipeDetails = () => {
       }
 
       try {
-        const response = await fetch(`http://localhost:5000/popularRecipe/${recipeId}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/popularRecipe/${recipeId}`);
         
         if (response.status === 404) {
           setError('Recipe not found');

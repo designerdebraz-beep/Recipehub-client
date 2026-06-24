@@ -30,7 +30,7 @@ const PurchasedRecipesContent = () => {
 
     // ১. পেমেন্ট কনফার্ম করা
     if (sessionId && recipeId) {
-      const confirmRes = await fetch("http://localhost:5000/api/purchased-recipes/confirm", {
+      const confirmRes = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/purchased-recipes/confirm`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId, recipeId, email: userEmail })
@@ -43,7 +43,7 @@ const PurchasedRecipesContent = () => {
     }
 
     // ২. ইউজারের কেনা সব রেসিপির লিস্ট ফেচ করা
-    const res = await fetch(`http://localhost:5000/api/purchased-recipes/${userEmail}`);
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/purchased-recipes/${userEmail}`);
     if (res.ok) {
       const data = await res.json();
       setPurchasedRecipes(data);

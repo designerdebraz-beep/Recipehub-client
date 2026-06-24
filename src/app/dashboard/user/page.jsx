@@ -25,7 +25,7 @@ const UserDashboard = async () => {
 
   // ১. ইউজারের নিজস্ব রেসিপি ডাটা আনা হচ্ছে
   const recipesRes = await fetch(
-    `http://localhost:5000/api/my-recipes/${user.id}`,
+    `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/my-recipes/${user.id}`,
     { cache: "no-store" }
   );
   const recipes = await recipesRes.json();
@@ -34,7 +34,7 @@ const UserDashboard = async () => {
   let favorites = [];
   try {
     const favoritesRes = await fetch(
-      `http://localhost:5000/api/favorites/${user.id}`,
+      `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/favorites/${user.id}`,
       { cache: "no-store" }
     );
     if (favoritesRes.ok) {
@@ -48,7 +48,7 @@ const UserDashboard = async () => {
   let likes = [];
   try {
     const likesRes = await fetch(
-      `http://localhost:5000/api/likes/${user.id}`,
+      `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/likes/${user.id}`,
       { cache: "no-store" }
     );
     if (likesRes.ok) {

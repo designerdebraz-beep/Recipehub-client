@@ -11,7 +11,6 @@ const MyRecipes = () => {
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(true);
     
-    // এডিট মডালের জন্য স্টেট সমূহ
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedRecipeId, setSelectedRecipeId] = useState(null);
     const [formData, setFormData] = useState({
@@ -19,7 +18,7 @@ const MyRecipes = () => {
         imageUrl: "",
         category: "",
         cuisineType: "",
-        difficultyLevel: "", // 👈 ডাটাবেজ অনুযায়ী difficultyLevel করা হলো
+        difficultyLevel: "", 
         prepTime: "",
         ingredients: "",
         instructions: ""
@@ -28,6 +27,7 @@ const MyRecipes = () => {
     useEffect(() => {
         const fetchRecipes = async () => {
             try {
+                const { data: jwtdata } = await authClient.token();
                 const session = await authClient.getSession();
                 const userId = session?.data?.user?.id;
 
@@ -36,9 +36,13 @@ const MyRecipes = () => {
                     return;
                 }
 
-                const res = await fetch(`http://localhost:5000/api/my-recipes/${userId}`);
+                const res = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/my-recipes/${userId}`, {
+                    headers: {
+                        Authorization: `Bearer ${jwtdata?.token}`
+                    }
+                });
                 const data = await res.json();
-                setRecipes(data);
+                setRecipes(Array.isArray(data) ? data : []);
             } catch (error) {
                 console.error(error);
             } finally {
@@ -49,12 +53,10 @@ const MyRecipes = () => {
         fetchRecipes();
     }, []);
 
-    // ভিউ হ্যান্ডলার লজিক
     const handleView = (id) => {
         router.push(`/recipes/${id}`);
     };
 
-    // এডিট বাটনে ক্লিক লজিক
     const handleEditClick = (recipe) => {
         setSelectedRecipeId(recipe._id);
         setFormData({
@@ -62,7 +64,7 @@ const MyRecipes = () => {
             imageUrl: recipe.imageUrl || "",
             category: recipe.category || "",
             cuisineType: recipe.cuisineType || "",
-            difficultyLevel: recipe.difficultyLevel || "Easy", // 👈 ডাটাবেজ প্রোপার্টি ম্যাপিং
+            difficultyLevel: recipe.difficultyLevel || "Easy", 
             prepTime: recipe.prepTime || "",
             ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients.join(", ") : recipe.ingredients || "",
             instructions: recipe.instructions || ""
@@ -70,12 +72,11 @@ const MyRecipes = () => {
         setIsEditModalOpen(true);
     };
 
-    // ফর্ম সাবমিট (PATCH) লজিক
+    // 🎯 আপডেট সাবমিট লজিক (টোকেন সহ পাঠানো হচ্ছে)
     const handleUpdateSubmit = async (e) => {
         e.preventDefault();
-
         try {
-            // ingredients যদি স্ট্রিং হয়, তবে সেটিকে কমা অনুযায়ী অ্যারেতে কনভার্ট করা ভালো
+            const { data: jwtdata } = await authClient.token();
             const processedIngredients = typeof formData.ingredients === 'string' 
                 ? formData.ingredients.split(',').map(item => item.trim()) 
                 : formData.ingredients;
@@ -85,10 +86,11 @@ const MyRecipes = () => {
                 ingredients: processedIngredients
             };
 
-            const res = await fetch(`http://localhost:5000/api/my-recipes/${selectedRecipeId}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/my-recipes/${selectedRecipeId}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${jwtdata?.token}` // 👈 টোকেন সিকিউরিটি যুক্ত করা হলো
                 },
                 body: JSON.stringify(updatedData),
             });
@@ -107,21 +109,28 @@ const MyRecipes = () => {
         }
     };
 
-    // ডিলিট হ্যান্ডলার লজিক
+    // 🎯 ডিলিট হ্যান্ডলার লজিক (Syntax ও URL ফিক্সড)
     const handleDelete = async (id) => {
         const confirmDelete = window.confirm("Are you sure you want to delete this recipe?");
         if (!confirmDelete) return;
 
         try {
-            const res = await fetch(`http://localhost:5000/api/my-recipes/${id}`, {
+            const { data: jwtdata } = await authClient.token();
+            
+            // fetch এর অবজেক্ট ব্র্যাকেট ঠিক করা হয়েছে এবং URL পরিবর্তন করে /api/my-recipes/${id} করা হয়েছে
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/my-recipes/${id}`, {
                 method: "DELETE",
-                });
+                headers: {
+                    "Authorization": `Bearer ${jwtdata?.token}`
+                }
+            });
 
             if (res.ok) {
                 setRecipes(recipes.filter((recipe) => recipe._id !== id));
                 alert("Recipe deleted successfully!");
             } else {
-                alert("Failed to delete recipe");
+                const errData = await res.json();
+                alert(errData.error || "Failed to delete recipe");
             }
         } catch (error) {
             console.error("Error deleting recipe:", error);
@@ -134,7 +143,6 @@ const MyRecipes = () => {
 
     return (
         <div className="p-6 max-w-7xl mx-auto relative">
-            {/* হেডার সেকশন */}
             <div className="flex justify-between items-center mb-2">
                 <h1 className="text-3xl font-black text-gray-900 flex items-center gap-2">
                     My Recipes <span className="text-2xl">📋</span>
@@ -147,7 +155,6 @@ const MyRecipes = () => {
             </div>
             <p className="text-gray-500 text-sm mb-6">{recipes.length} recipe published</p>
 
-            {/* টেবিল */}
             <div className="w-full overflow-x-auto border border-gray-100 rounded-2xl bg-white shadow-sm">
                 <table className="w-full text-left border-collapse min-w-[800px]">
                     <thead>
@@ -177,12 +184,9 @@ const MyRecipes = () => {
                                 <td className="py-4 px-4">
                                     <span className="bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-full text-xs font-semibold">{recipe.difficultyLevel || "Easy"}</span>
                                 </td>
-                                
-                                {/* 🎯 ডায়নামিক লাইক কাউণ্টার নিচে ফিক্স করা হলো */}
                                 <td className="py-4 px-4">
                                     ❤️ <span className="text-xs font-bold">{recipe.likesCount ?? 0}</span>
                                 </td>
-
                                 <td className="py-4 px-6 text-center">
                                     <div className="flex items-center justify-center gap-2">
                                         <button onClick={() => handleView(recipe._id)} className="px-4 py-1.5 bg-gray-50 text-gray-700 text-xs font-bold rounded-lg border border-gray-200 cursor-pointer">View</button>
@@ -196,7 +200,6 @@ const MyRecipes = () => {
                 </table>
             </div>
 
-            {/* ================= EDIT MODAL POPUP ================= */}
             {isEditModalOpen && (
                 <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4 overflow-y-auto">
                     <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl">

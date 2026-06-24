@@ -13,7 +13,7 @@ const Reports = () => {
     const fetchReports = async () => {
         try {
             setLoading(true);
-            const res = await fetch("http://localhost:5000/api/reports");
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/reports`);
             const data = await res.json();
             if (data.success) {
                 setReports(data.data);
@@ -35,7 +35,7 @@ const Reports = () => {
         
         if (confirmRemove) {
             try {
-                const res = await fetch(`http://localhost:5000/api/recipes/${recipeId}`, {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/recipes/${recipeId}`, {
                     method: "DELETE"
                 });
                 const data = await res.json();
@@ -57,7 +57,7 @@ const Reports = () => {
     // ৩. রিপোর্ট ডিসমিস করার রিয়েল হ্যান্ডলার (ডাটাবেজ কানেক্টেড)
     const handleDismissReport = async (reportId) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/reports/${reportId}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/reports/${reportId}`, {
                 method: "PATCH"
             });
             const data = await res.json();

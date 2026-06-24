@@ -39,13 +39,13 @@ const [additionalDetails, setAdditionalDetails] = useState(""); // টেক্�
 
       try {
         // ফেভারিট চেক
-        const favRes = await fetch(`http://localhost:5000/api/favorites/${userId}`);
+        const favRes = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/favorites/${userId}`);
         const favorites = await favRes.json();
         const foundFav = favorites.some(fav => fav.recipeId === initialRecipe._id);
         setIsFavorite(foundFav);
 
         // লাইক চেক (ইউজার ইতিমধ্যে এই রেসিপিতে লাইক দিয়েছে কি না)
-        const likeRes = await fetch(`http://localhost:5000/api/likes/${userId}`);
+        const likeRes = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/likes/${userId}`);
         const userLikes = await likeRes.json();
         const foundLike = userLikes.some(like => like.recipeId === initialRecipe._id);
         setHasLiked(foundLike);
@@ -68,7 +68,7 @@ const [additionalDetails, setAdditionalDetails] = useState(""); // টেক্�
       }
 
       // ব্যাকএন্ডে লাইক/আনলাইক রিকোয়েস্ট পাঠানো হচ্ছে
-      const res = await fetch("http://localhost:5000/api/likes", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/likes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -106,7 +106,7 @@ const handleFavoriteToggle = async () => {
       return;
     }
 
-    const res = await fetch("http://localhost:5000/api/favorites", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/favorites`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -152,7 +152,7 @@ const handleFavoriteToggle = async () => {
         return;
       }
 
-      const res = await fetch("http://localhost:5000/api/create-checkout-session", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/create-checkout-session`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -200,7 +200,7 @@ const handleFavoriteToggle = async () => {
       }
 
       // ২. ব্যাকএন্ড API-তে ডাটা পাঠানো হচ্ছে
-      const res = await fetch("http://localhost:5000/api/reports", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/reports`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

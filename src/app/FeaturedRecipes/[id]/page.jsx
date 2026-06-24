@@ -26,7 +26,7 @@ const FeaturedRecipesdelites = () => {
 
       try {
         // Fetch all featured recipes and find the one with matching ID
-        const response = await fetch('http://localhost:5000/FeaturedRecipes');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/FeaturedRecipes`);
         
         if (!response.ok) {
           throw new Error('Failed to fetch recipe details');

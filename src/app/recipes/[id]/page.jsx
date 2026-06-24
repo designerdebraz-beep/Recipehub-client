@@ -12,7 +12,7 @@ const RecipeDetailsPage = async ({ params }) => {
   let error = null;
 
   try {
-    const BasedUrl = process.env.BasedUrl || process.env.NEXT_PUBLIC_BASED_URL || 'http://localhost:5000';
+    const BasedUrl = process.env.NEXT_PUBLIC_BETTER_AUTH_URL;
     
     // ✅ FIX: Fetch the specific recipe by ID directly
     const res = await fetch(`${BasedUrl}/api/recipes/${id}`, { 

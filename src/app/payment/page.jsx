@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 export default function PaymentPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const BasedUrl = process.env.BasedUrl || process.env.NEXT_PUBLIC_BASED_URL || 'http://localhost:5000';
+  const BasedUrl = process.env.NEXT_PUBLIC_BETTER_AUTH_URL;
 
   const handleProcessPayment = async () => {
     setLoading(true);

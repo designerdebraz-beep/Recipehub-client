@@ -12,7 +12,7 @@ const Transaction = () => {
         const fetchTransactions = async () => {
             try {
                 setLoading(true);
-                const res = await fetch("http://localhost:5000/api/admin/transactions");
+                const res = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/admin/transactions`);
                 const data = await res.json();
                 
                 if (data.success) {

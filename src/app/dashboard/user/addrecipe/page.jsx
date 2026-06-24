@@ -1,5 +1,5 @@
 import AddRecipeMenu from "@/component/AddrecipeMenu/Addrecipe";
-import React from "react";
+import React, { Suspense } from "react";
 
 const AddRecipe = () => {
   return (
@@ -24,7 +24,10 @@ const AddRecipe = () => {
 
         {/* Form Container */}
         <div className="bg-white text-center rounded-3xl shadow-lg border border-gray-100 p-6 md:p-10">
-          <AddRecipeMenu />
+          <Suspense fallback={<p>Loading....</p>}>
+            <AddRecipeMenu />
+          </Suspense>
+
         </div>
       </div>
     </div>

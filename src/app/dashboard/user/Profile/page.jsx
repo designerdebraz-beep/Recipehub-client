@@ -20,7 +20,7 @@ const ProfilePage = async () => {
   }
 
   const res = await fetch(
-    `http://localhost:5000/api/my-recipes/${user.id}`,
+    `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/my-recipes/${user.id}`,
     {
       cache: "no-store"
     }

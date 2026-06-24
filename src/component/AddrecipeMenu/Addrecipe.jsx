@@ -34,7 +34,7 @@ export default function AddRecipeMenu() {
   const [transactionDetails, setTransactionDetails] = useState(null);
   const [currentUserEmail, setCurrentUserEmail] = useState(null);
 
-  const BasedUrl = process.env.BasedUrl || process.env.NEXT_PUBLIC_BASED_URL || 'http://localhost:5000';
+  const BasedUrl =  process.env.NEXT_PUBLIC_BETTER_AUTH_URL;
 
   // ১. ইউজারের সেশন থেকে ইমেইল আলাদাভাবে ট্র্যাক করার জন্য Effect
   useEffect(() => {
@@ -51,7 +51,7 @@ export default function AddRecipeMenu() {
     getUserSession();
   }, []);
 
-// ২. পেমেন্ট কনফার্মেশন হ্যান্ডেল করার জন্য ফিক্সড Effect (টোকেন হেডার সহ)
+
   useEffect(() => {
     const checkPaymentStatus = async () => {
       const paymentStatus = searchParams.get('payment');

@@ -17,7 +17,7 @@ const SuccessPageContent = () => {
     const [paymentType, setPaymentType] = useState('pro_plan'); // Default
     const [purchasedRecipeId, setPurchasedRecipeId] = useState('');
 
-    const BasedUrl = process.env.BasedUrl || process.env.NEXT_PUBLIC_BASED_URL || 'http://localhost:5000';
+    const BasedUrl =  process.env.NEXT_PUBLIC_BETTER_AUTH_URL;
 
     useEffect(() => {
         const checkPaymentStatus = async () => {
