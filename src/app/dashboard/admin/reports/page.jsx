@@ -1,46 +1,97 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Reports = () => {
     // ফিল্টার স্টেট (Pending, Dismissed, All)
     const [activeTab, setActiveTab] = useState("Pending");
+    // ডাটাবেজ থেকে আসা রিপোর্টের লিস্ট রাখার স্টেট
+    const [reports, setReports] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // ইমেজ (image_44bf5f.jpg) অনুযায়ী ডামি রিপোর্টের ডাটা অ্যারে
-    const [reports, setReports] = useState([
-        { id: 1, recipeId: "00000006...", reporter: "a@gmail.com", reason: "Offensive Content", description: "—", date: "16/06/2026", status: "Pending" },
-        { id: 2, recipeId: "00000009...", reporter: "a@gmail.com", reason: "Spam", description: "Offensive", date: "14/06/2026", status: "Pending" },
-        { id: 3, recipeId: "00000001...", reporter: "tanvir.ahmed@gmail.com", reason: "Spam", description: "—", date: "10/05/2026", status: "Pending" },
-        { id: 4, recipeId: "00000010...", reporter: "mehedi.hasan@gmail.com", reason: "Spam", description: "—", date: "07/05/2026", status: "Pending" },
-        { id: 5, recipeId: "00000002...", reporter: "sabbir.hossain@gmail.com", reason: "Spam", description: "—", date: "04/05/2026", status: "Pending" },
-        { id: 6, recipeId: "00000007...", reporter: "tanvir.ahmed@gmail.com", reason: "Spam", description: "—", date: "01/05/2026", status: "Pending" },
-    ]);
-
-    // রেসিপি রিমুভ করার হ্যান্ডলার
-    const handleRemoveRecipe = (id, recipeId) => {
-        const confirmRemove = window.confirm(`Are you sure you want to remove recipe ${recipeId}?`);
-        if (confirmRemove) {
-            setReports(reports.filter(report => report.id !== id));
-            alert("Recipe removed successfully!");
+    // ১. ডাটাবেজ থেকে রিপোর্ট লোড করার ফাংশন
+    const fetchReports = async () => {
+        try {
+            setLoading(true);
+            const res = await fetch("http://localhost:5000/api/reports");
+            const data = await res.json();
+            if (data.success) {
+                setReports(data.data);
+            }
+        } catch (error) {
+            console.error("Error fetching reports from DB:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
-    // রিপোর্ট ডিসমিস করার হ্যান্ডলার
-    const handleDismissReport = (id) => {
-        setReports(reports.map(report => {
-            if (report.id === id) {
-                return { ...report, status: "Dismissed" };
+    useEffect(() => {
+        fetchReports();
+    }, []);
+
+    // ২. রেসিপি রিমুভ করার রিয়েল হ্যান্ডলার (ডাটাবেজ কানেক্টেড)
+    const handleRemoveRecipe = async (recipeId) => {
+        const confirmRemove = window.confirm(`Are you sure you want to completely remove recipe ${recipeId}? This will delete the recipe and all its reports.`);
+        
+        if (confirmRemove) {
+            try {
+                const res = await fetch(`http://localhost:5000/api/recipes/${recipeId}`, {
+                    method: "DELETE"
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    alert("Recipe and its reports removed successfully!");
+                    // ডিলিট হওয়ার পর স্টেট থেকে ঐ রেসিপির সব রিপোর্ট ইনস্ট্যান্ট সরিয়ে দেওয়া
+                    setReports(reports.filter(report => report.recipeId !== recipeId));
+                } else {
+                    alert(data.message || "Failed to remove recipe.");
+                }
+            } catch (error) {
+                console.error("Error deleting recipe:", error);
+                alert("Server error. Could not delete recipe.");
             }
-            return report;
-        }));
-        alert("Report dismissed.");
+        }
     };
 
-    // ট্যাব অনুযায়ী ফিল্টার করা ডাটা
+    // ৩. রিপোর্ট ডিসমিস করার রিয়েল হ্যান্ডলার (ডাটাবেজ কানেক্টেড)
+    const handleDismissReport = async (reportId) => {
+        try {
+            const res = await fetch(`http://localhost:5000/api/reports/${reportId}`, {
+                method: "PATCH"
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                alert("Report marked as dismissed.");
+                // ইউআই আপডেট করার জন্য লোকাল স্টেট চেঞ্জ করা হলো
+                setReports(reports.map(report => {
+                    if (report._id === reportId) {
+                        return { ...report, status: "dismissed" };
+                    }
+                    return report;
+                }));
+            } else {
+                alert(data.message || "Failed to dismiss report.");
+            }
+        } catch (error) {
+            console.error("Error dismissing report:", error);
+            alert("Server error. Could not dismiss report.");
+        }
+    };
+
+    // ৪. ট্যাব অনুযায়ী ফিল্টার করা ডাটা (ডাটাবেজের ছোট হাতের অক্ষরের সাথে ম্যাচিং করা হয়েছে)
     const filteredReports = reports.filter(report => {
         if (activeTab === "All") return true;
-        return report.status === activeTab;
+        return report.status?.toLowerCase() === activeTab.toLowerCase();
     });
+
+    // ৫. আইএসও ডেট ফরম্যাটকে রিডেবল (DD/MM/YYYY) করার হেল্পার ফাংশন
+    const formatDate = (dateString) => {
+        if (!dateString) return "—";
+        const date = new Date(dateString);
+        return date.toLocaleDateString("en-GB"); // Output format: DD/MM/YYYY
+    };
 
     return (
         <div className="p-8 w-full bg-[#F8F9FA] min-h-screen">
@@ -52,7 +103,7 @@ const Reports = () => {
                         Recipe Reports <span className="text-2xl">🚨</span>
                     </h1>
                     <p className="text-gray-400 text-sm mt-1">
-                        {reports.filter(r => r.status === "Pending").length} pending reports
+                        {reports.filter(r => r.status?.toLowerCase() === "pending").length} pending reports
                     </p>
                 </div>
 
@@ -88,7 +139,13 @@ const Reports = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50 text-sm font-medium text-gray-700">
-                        {filteredReports.length === 0 ? (
+                        {loading ? (
+                            <tr>
+                                <td colSpan="6" className="py-10 text-center text-gray-400 font-medium animate-pulse">
+                                    Loading reports from database...
+                                </td>
+                            </tr>
+                        ) : filteredReports.length === 0 ? (
                             <tr>
                                 <td colSpan="6" className="py-10 text-center text-gray-400 font-medium">
                                     No reports found in this category.
@@ -96,16 +153,16 @@ const Reports = () => {
                             </tr>
                         ) : (
                             filteredReports.map((report) => (
-                                <tr key={report.id} className="hover:bg-gray-50/40 transition-colors">
+                                <tr key={report._id} className="hover:bg-gray-50/40 transition-colors">
                                     
                                     {/* রেসিপি আইডি */}
                                     <td className="py-4 px-6 text-gray-500 font-mono text-xs">
-                                        {report.recipeId}
+                                        {report.recipeId || "—"}
                                     </td>
 
                                     {/* রিপোর্টার ইমেইল */}
                                     <td className="py-4 px-4 text-gray-900 font-bold">
-                                        {report.reporter}
+                                        {report.reporterEmail}
                                     </td>
 
                                     {/* রিপোর্টের কারণ (Reason) */}
@@ -119,29 +176,29 @@ const Reports = () => {
                                         </span>
                                     </td>
 
-                                    {/* বিবরণ (Description) */}
+                                    {/* বিবরণ (Description / additionalDetails) */}
                                     <td className="py-4 px-4 text-center text-gray-500 font-normal">
-                                        {report.description}
+                                        {report.additionalDetails || "—"}
                                     </td>
 
-                                    {/* রিপোর্টের তারিখ */}
+                                    {/* রিপোর্টের তারিখ (Formatted) */}
                                     <td className="py-4 px-4 text-center text-gray-500 text-xs font-normal">
-                                        {report.date}
+                                        {formatDate(report.createdAt)}
                                     </td>
 
                                     {/* অ্যাকশন বাটনসমূহ */}
                                     <td className="py-4 px-6 text-center">
                                         <div className="flex items-center justify-center gap-2">
                                             <button
-                                                onClick={() => handleRemoveRecipe(report.id, report.recipeId)}
+                                                onClick={() => handleRemoveRecipe(report.recipeId)}
                                                 className="px-3 py-1.5 bg-red-50 hover:bg-red-100/70 text-red-500 text-xs font-bold rounded-lg transition-colors cursor-pointer"
                                             >
                                                 Remove Recipe
                                             </button>
                                             
-                                            {report.status === "Pending" && (
+                                            {report.status?.toLowerCase() === "pending" && (
                                                 <button
-                                                    onClick={() => handleDismissReport(report.id)}
+                                                    onClick={() => handleDismissReport(report._id)}
                                                     className="px-3 py-1.5 bg-gray-50 border border-gray-200 hover:bg-gray-100 text-gray-700 text-xs font-bold rounded-lg transition-colors cursor-pointer"
                                                 >
                                                     Dismiss
