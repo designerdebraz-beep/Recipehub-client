@@ -32,7 +32,7 @@ const PopularRecipe = () => {
     fetchPopularRecipes();
   }, []);
 
-  // ইমেজ অনুযায়ী র্যাঙ্ক ব্যাজের কালার কম্বিনেশন
+  
   const getRankStyle = (index) => {
     if (index === 0) return 'bg-black text-white dark:bg-gray-700'; // Rank 1
     if (index === 1) return 'bg-black text-white dark:bg-gray-700'; // Rank 2
@@ -62,8 +62,19 @@ const PopularRecipe = () => {
   if (error) return <p className="text-center text-red-500 py-10">Error: {error}</p>;
 
   return (
+    <div>
+          <div className="text-center mb-12">
+                    <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white my-4 mt-2">
+                        Popular Recipes
+                    </h2>
+                    <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full mb-4"></div>
+                    <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                        Discover our Popular Liked selection of delicious recipes from around the world
+                    </p>
+                </div>
     <section className="py-12 px-4 sm:px-6 lg:px-8 bg-white dark:bg-gray-900">
       <div className="max-w-7xl mx-auto">
+       
         
         {/* গ্রিড লেআউট (ইমেজের মতো ৩টি কলামে দেখানোর জন্য) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
@@ -141,6 +152,8 @@ const PopularRecipe = () => {
 
       </div>
     </section>
+    </div>
+
   );
 };
 
