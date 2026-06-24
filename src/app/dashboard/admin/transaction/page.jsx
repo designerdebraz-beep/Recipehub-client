@@ -1,21 +1,39 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Transaction = () => {
-    // ইমেজ (image_44ca84.jpg) অনুযায়ী ডামি ট্রানজেকশন ডাটা অ্যারে
-    const [transactions, setTransactions] = useState([
-        { id: 1, user: "a@gmail.com", type: "Premium", amount: "$9.99", status: "paid", txnId: "cs_test_a1GRXySl...", date: "16/06/2026" },
-        { id: 2, user: "a@gmail.com", type: "Recipe", amount: "$4.99", status: "paid", txnId: "cs_test_a1xw0HiR...", date: "16/06/2026" },
-        { id: 3, user: "a@gmail.com", type: "Recipe", amount: "$4.99", status: "paid", txnId: "cs_test_a1XGr0ci...", date: "16/06/2026" },
-        { id: 4, user: "a@gmail.com", type: "Recipe", amount: "$4.99", status: "paid", txnId: "cs_test_a1RHz2o2...", date: "14/06/2026" },
-        { id: 5, user: "a@b.com", type: "Recipe", amount: "$4.99", status: "paid", txnId: "cs_test_a10swNF1...", date: "14/06/2026" },
-        { id: 6, user: "a@b.com", type: "Recipe", amount: "$4.99", status: "paid", txnId: "test_txn_1781447...", date: "14/06/2026" },
-        { id: 7, user: "a@b.com", type: "Recipe", amount: "$4.99", status: "paid", txnId: "test_txn_1781447...", date: "14/06/2026" },
-        { id: 8, user: "a@b.com", type: "Premium", amount: "$9.99", status: "paid", txnId: "test_txn_premium...", date: "14/06/2026" },
-        { id: 9, user: "nusrat.jahan@gmail.com", type: "Recipe", amount: "$0.02", status: "paid", txnId: "pi_3Rq8HiLhY7A1B...", date: "10/04/2026" },
-        { id: 10, user: "ayesha.rahman@gmail.com", type: "Recipe", amount: "$0.04", status: "paid", txnId: "pi_3Rq8GhLhY7A1B...", date: "09/04/2026" }
-    ]);
+    // ডাটাবেজ থেকে আসা ট্রানজেকশন ডাটা রাখার স্টেট
+    const [transactions, setTransactions] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    // ডাটাবেজ থেকে ডাটা নিয়ে আসার ফাংশন
+    useEffect(() => {
+        const fetchTransactions = async () => {
+            try {
+                setLoading(true);
+                const res = await fetch("http://localhost:5000/api/admin/transactions");
+                const data = await res.json();
+                
+                if (data.success) {
+                    setTransactions(data.data);
+                }
+            } catch (error) {
+                console.error("Error fetching transactions from database:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTransactions();
+    }, []);
+
+    // আইএসও ডেট ফরম্যাটকে রিডেবল (DD/MM/YYYY) করার হেল্পার ফাংশন
+    const formatDate = (dateString) => {
+        if (!dateString) return "—";
+        const date = new Date(dateString);
+        return date.toLocaleDateString("en-GB"); // Format: DD/MM/YYYY
+    };
 
     return (
         <div className="p-8 w-full bg-[#F8F9FA] min-h-screen">
@@ -42,49 +60,63 @@ const Transaction = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50 text-sm font-medium text-gray-700">
-                        {transactions.map((txn) => (
-                            <tr key={txn.id} className="hover:bg-gray-50/40 transition-colors">
-                                
-                                {/* ইউজার (User) */}
-                                <td className="py-4 px-6 text-gray-900 font-bold">
-                                    {txn.user}
+                        {loading ? (
+                            <tr>
+                                <td colSpan="6" className="py-10 text-center text-gray-400 font-medium animate-pulse">
+                                    Loading secure transactions...
                                 </td>
-
-                                {/* টাইপ ব্যাজ (Type) */}
-                                <td className="py-4 px-4 text-center">
-                                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1 ${
-                                        txn.type === "Premium"
-                                            ? "bg-purple-50 text-purple-600 border border-purple-100/50"
-                                            : "bg-orange-50 text-orange-600 border border-orange-100/50"
-                                    }`}>
-                                        {txn.type === "Premium" ? "👑 Premium" : "🍳 Recipe"}
-                                    </span>
-                                </td>
-
-                                {/* অ্যামাউন্ট (Amount) */}
-                                <td className="py-4 px-4 text-center text-emerald-600 font-black tracking-tight text-base">
-                                    {txn.amount}
-                                </td>
-
-                                {/* পেমেন্ট স্ট্যাটাস (Payment Status) */}
-                                <td className="py-4 px-4 text-center">
-                                    <span className="bg-emerald-50 text-emerald-600 px-3 py-0.5 rounded-full text-xs font-bold lowercase">
-                                        {txn.status}
-                                    </span>
-                                </td>
-
-                                {/* ট্রানজেকশন আইডি (Transaction ID) */}
-                                <td className="py-4 px-4 text-gray-400 font-mono text-xs">
-                                    {txn.txnId}
-                                </td>
-
-                                {/* তারিখ (Date) */}
-                                <td className="py-4 px-6 text-center text-gray-500 text-xs font-normal">
-                                    {txn.date}
-                                </td>
-
                             </tr>
-                        ))}
+                        ) : transactions.length === 0 ? (
+                            <tr>
+                                <td colSpan="6" className="py-10 text-center text-gray-400 font-medium">
+                                    No transactions found in the database.
+                                </td>
+                            </tr>
+                        ) : (
+                            transactions.map((txn) => (
+                                <tr key={txn._id} className="hover:bg-gray-50/40 transition-colors">
+                                    
+                                    {/* ইউজার (User Email) */}
+                                    <td className="py-4 px-6 text-gray-900 font-bold">
+                                        {txn.user || "Unknown User"}
+                                    </td>
+
+                                    {/* টাইপ ব্যাজ (Type) */}
+                                    <td className="py-4 px-4 text-center">
+                                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1 ${
+                                            txn.type === "Premium"
+                                                ? "bg-purple-50 text-purple-600 border border-purple-100/50"
+                                                : "bg-orange-50 text-orange-600 border border-orange-100/50"
+                                        }`}>
+                                            {txn.type === "Premium" ? "👑 Premium" : "🍳 Recipe"}
+                                        </span>
+                                    </td>
+
+                                    {/* অ্যামাউন্ট (Amount) */}
+                                    <td className="py-4 px-4 text-center text-emerald-600 font-black tracking-tight text-base">
+                                        {txn.amount}
+                                    </td>
+
+                                    {/* পেমেন্ট স্ট্যাটাস (Payment Status) */}
+                                    <td className="py-4 px-4 text-center">
+                                        <span className="bg-emerald-50 text-emerald-600 px-3 py-0.5 rounded-full text-xs font-bold lowercase">
+                                            {txn.status}
+                                        </span>
+                                    </td>
+
+                                    {/* ট্রানজেকশন আইডি (Transaction ID) */}
+                                    <td className="py-4 px-4 text-gray-400 font-mono text-xs">
+                                        {txn.txnId}
+                                    </td>
+
+                                    {/* তারিখ (Date) */}
+                                    <td className="py-4 px-6 text-center text-gray-500 text-xs font-normal">
+                                        {formatDate(txn.createdAt)}
+                                    </td>
+
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
