@@ -20,7 +20,6 @@ export default function AppNavbar() {
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
   const isLoggedIn = !!user;
-  console.log("name", user)
 
   // Sync initial dark mode setting on load
   useEffect(() => {
@@ -57,42 +56,62 @@ export default function AppNavbar() {
     const isActive = pathname === path || (path !== "/" && pathname?.startsWith(path));
     if (isMobile) {
       return isActive
-        ? "bg-primary/10 text-primary dark:text-primary-400 font-semibold w-full px-4 py-3 rounded-xl flex items-center justify-between transition-all text-sm sm:text-base"
-        : "text-default-600 dark:text-zinc-400 hover:text-default-900 dark:hover:text-white font-medium w-full px-4 py-3 rounded-xl flex items-center justify-between transition-all hover:bg-default-50 dark:hover:bg-zinc-900/50 text-sm sm:text-base";
+        ? "bg-primary/10 text-primary dark:text-primary-400 font-semibold w-full px-4 py-3 rounded-xl flex items-center justify-between transition-all text-sm"
+        : "text-default-600 dark:text-zinc-400 hover:text-default-900 dark:hover:text-white font-medium w-full px-4 py-3 rounded-xl flex items-center justify-between transition-all hover:bg-default-50 dark:hover:bg-zinc-900/40 text-sm";
     }
     return isActive
-      ? "bg-default-100 dark:bg-zinc-800 text-default-900 dark:text-white font-semibold px-2.5 py-1.5 lg:px-3 lg:py-2 rounded-xl transition-all text-xs md:text-sm xl:text-base"
-      : "text-default-500 hover:text-default-900 dark:text-zinc-400 dark:hover:text-zinc-100 font-medium px-2.5 py-1.5 lg:px-3 lg:py-2 transition-all text-xs md:text-sm xl:text-base";
+      ? "bg-default-100 dark:bg-zinc-800 text-default-900 dark:text-white font-semibold px-3 py-2 rounded-xl transition-all text-sm"
+      : "text-default-500 hover:text-default-900 dark:text-zinc-400 dark:hover:text-zinc-100 font-medium px-3 py-2 rounded-xl transition-all text-sm";
   };
 
   return (
-    <div className="w-full fixed top-0 inset-x-0 z-50 flex flex-col shadow-sm">
-
-      {/* 🧭 SYSTEM COMPATIBLE NAVBAR CONTAINER */}
+    <div className="w-full fixed top-0 inset-x-0 z-50 flex flex-col">
+      {/* 🧭 PREMIUM GLASSMORPHISM NAVBAR */}
       <Navbar
         isMenuOpen={isMenuOpen}
         onMenuOpenChange={setIsMenuOpen}
         maxWidth="xl"
-        className="bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-divider/40 h-16 sm:h-20 w-full px-4 sm:px-6 md:px-8 lg:px-12 position-relative"
+        className="bg-white/70 dark:bg-zinc-950/70 backdrop-blur-md border-b border-default-200/50 dark:border-zinc-800/50 h-16 sm:h-20 w-full transition-colors duration-300"
       >
         {/* 📱 MOBILE VIEWPORT BRAND BAR */}
-        <NavbarContent className="md:hidden gap-1.5 sm:gap-4 w-full" justify="start">
-
+        <NavbarContent className="md:hidden gap-3 w-full" justify="start">
           {/* 🍔 CUSTOM ANIMATED HAMBURGER BUTTON */}
           <NavbarMenuToggle
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            className="text-default-600 dark:text-zinc-400 h-9 w-9 sm:h-10 sm:w-10 min-w-[36px] sm:min-w-[40px] flex items-center justify-center rounded-xl hover:bg-default-100 dark:hover:bg-zinc-900/50 transition-colors"
+            className="text-default-600 dark:text-zinc-400 h-10 w-10 flex items-center justify-center rounded-xl hover:bg-default-100 dark:hover:bg-zinc-900/50 transition-colors"
             icon={(isOpen) => (
-              <div className="flex flex-col justify-center items-center w-4 h-4 sm:w-5 sm:h-5 relative gap-[3px] sm:gap-[4px]">
-                <span className={`bg-current h-[2px] w-4 sm:w-5 rounded-full transition-all duration-300 transform origin-center ${isOpen ? "rotate-45 translate-y-[5px] sm:translate-y-[6px]" : ""}`} />
-                <span className={`bg-current h-[2px] w-4 sm:w-5 rounded-full transition-all duration-300 ${isOpen ? "opacity-0" : ""}`} />
-                <span className={`bg-current h-[2px] w-4 sm:w-5 rounded-full transition-all duration-300 transform origin-center ${isOpen ? "-rotate-45 -translate-y-[5px] sm:translate-y-[6px]" : ""}`} />
+              <div className="flex flex-col justify-center items-center w-5 h-5 relative gap-[4px]">
+                <span className={`bg-current h-[2px] w-5 rounded-full transition-all duration-300 transform origin-center ${isOpen ? "rotate-45 translate-y-[6px]" : ""}`} />
+                <span className={`bg-current h-[2px] w-5 rounded-full transition-all duration-300 ${isOpen ? "opacity-0" : ""}`} />
+                <span className={`bg-current h-[2px] w-5 rounded-full transition-all duration-300 transform origin-center ${isOpen ? "-rotate-45 -translate-y-[6px]" : ""}`} />
               </div>
             )}
           />
 
-          <NavbarBrand as={Link} href="/" className="cursor-pointer select-none items-center gap-1.5 sm:gap-2 max-w-fit">
-            <div className="relative w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center overflow-hidden rounded-lg sm:rounded-xl dark:bg-white bg-black p-1 flex-shrink-0">
+          <NavbarBrand as={Link} href="/" className="cursor-pointer select-none items-center gap-2 max-w-fit">
+            <div className="relative w-5xl h-5xl flex items-center justify-center overflow-hidden rounded-xl  dark:bg-white p-1.5 transition-colors">
+              <Image
+                width={200}
+                height={200}
+                src="/Logo.png"
+                alt="logo"
+                className="object-contain dark:invert"
+              />
+            </div>
+            <p className="font-bold text-base tracking-tight text-default-900 dark:text-white truncate">
+              RecipeHub
+            </p>
+          </NavbarBrand>
+        </NavbarContent>
+
+        {/* 💻 DESKTOP VIEWPORT BRAND BAR */}
+        <NavbarContent justify="start" className="hidden md:flex gap-0 max-w-fit">
+          <NavbarBrand
+            as={Link}
+            href="/"
+            className="cursor-pointer text-default-900 dark:text-white select-none items-center gap-3 hover:opacity-90 transition-opacity"
+          >
+            <div className="relative w-10 h-10 flex items-center justify-center overflow-hidden rounded-xl dark:bg-white p-1.5 transition-colors">
               <Image
                 width={100}
                 height={100}
@@ -101,114 +120,96 @@ export default function AppNavbar() {
                 className="object-contain dark:invert"
               />
             </div>
-            <p className="font-bold text-sm sm:text-lg tracking-tight text-default-900 dark:text-white max-w-[120px] sm:max-w-none truncate">
-              RecipeHub
-            </p>
-          </NavbarBrand>
-        </NavbarContent>
-
-        {/* 💻 DESKTOP VIEWPORT BRAND BAR */}
-        <NavbarContent justify="start" className="hidden md:flex gap-0 max-w-fit flex-shrink-0">
-          <NavbarBrand
-            as={Link}
-            href="/"
-            className="cursor-pointer text-default-900 dark:text-white select-none items-center gap-1.5 lg:gap-3"
-          >
-            <div className="relative w-8 h-8 lg:w-10 lg:h-10 flex items-center justify-center overflow-hidden rounded-xl dark:bg-white p-1 flex-shrink-0">
-              <Image
-                width={36}
-                height={36}
-                src="/Logo.png"
-                alt="logo"
-                className="object-contain dark:invert"
-              />
-            </div>
-            <p className="font-bold text-base lg:text-xl tracking-tight whitespace-nowrap">
+            <p className="font-extrabold text-lg lg:text-xl tracking-tight whitespace-nowrap">
               RecipeHub
             </p>
           </NavbarBrand>
         </NavbarContent>
 
         {/* 🖥️ MIDDLE LINKS LAYER */}
-        <NavbarContent className="hidden md:flex gap-1 lg:gap-2 mx-1 lg:mx-4" justify="center">
+        <NavbarContent className="hidden md:flex gap-2 mx-6" justify="center">
           <NavbarItem>
             <Link href="/" className={getLinkClass("/")}>
               Home
             </Link>
           </NavbarItem>
           <NavbarItem>
-            <Link href="/browse-products" className={getLinkClass("/browse-products")}>
-              Browse Products
+            <Link href="/recipes" className={getLinkClass("/recipes")}>
+             Browse Recipes
             </Link>
           </NavbarItem>
           <NavbarItem>
-            <Link href="/dashboard/user" className={getLinkClass("/dashboard")}>
+            <Link href={`/dashboard/${user?.role}`} className={getLinkClass("/dashboard")}>
               Dashboard
             </Link>
+           
           </NavbarItem>
         </NavbarContent>
 
         {/* 🛠️ RIGHT ACTION UTILITY GROUP */}
-        <NavbarContent justify="end" className="gap-1 sm:gap-2 md:gap-3 flex-shrink-0">
+        <NavbarContent justify="end" className="gap-2 sm:gap-3">
+          {/* Theme Toggler */}
           <NavbarItem>
             <Button
               isIconOnly
               variant="light"
-              className="text-default-600 dark:text-zinc-400 rounded-full hover:bg-default-100 dark:hover:bg-zinc-800 w-8 h-8 sm:w-10 sm:h-10"
+              className="text-default-600 dark:text-zinc-400 rounded-xl hover:bg-default-100 dark:hover:bg-zinc-800/60 w-10 h-10 transition-colors"
               onClick={toggleTheme}
               aria-label="Toggle theme"
             >
-              {isDarkMode ? <Sun size={16} className="text-amber-500 sm:size-[18px]" /> : <Moon size={16} className="stroke-[1.5] sm:size-[18px]" />}
+              {isDarkMode ? <Sun size={18} className="text-amber-500 animate-pulse" /> : <Moon size={18} className="stroke-[1.5]" />}
             </Button>
           </NavbarItem>
 
-          {/* লোডিং এর সময় UI ব্লিঙ্ক করা বন্ধ করতে কন্ডিশন আপডেট করা হয়েছে */}
+          {/* Skeleton/Auth State Loader */}
           {isPending ? (
-            <NavbarItem className="w-8 h-8 sm:w-10 sm:h-10" />
+            <NavbarItem className="w-10 h-10 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-default-200 dark:bg-zinc-800 animate-pulse" />
+            </NavbarItem>
           ) : isLoggedIn ? (
-            <Dropdown placement="bottom-end" backdrop="blur">
+            <Dropdown placement="bottom-end" backdrop="blur" className="bg-white dark:bg-zinc-900 border border-default-100 dark:border-zinc-800 rounded-2xl shadow-xl">
               <NavbarItem>
                 <DropdownTrigger>
-                  <div className="flex items-center gap-1 sm:gap-2 cursor-pointer group select-none py-1 px-1 sm:px-2 rounded-xl hover:bg-default-100 dark:hover:bg-zinc-800 transition-colors max-w-[100px] sm:max-w-[200px]">
-                    <Avatar>
+                  <div className="flex items-center gap-2 cursor-pointer group select-none py-1.5 pl-1.5 pr-2.5 sm:pr-3 rounded-xl bg-default-50/50 hover:bg-default-100 dark:bg-zinc-900/40 dark:hover:bg-zinc-800/80 border border-default-200/30 dark:border-zinc-800/30 transition-all max-w-[140px] sm:max-w-[200px]">
+                    <Avatar className="w-7 h-7 sm:w-8 sm:h-8 border border-default-200/60 dark:border-zinc-700">
                       <Avatar.Image src={user?.image}
                         referrerPolicy="no-referrer"
                         name={user?.name}
-                        className="w-8 h-8 sm:w-10 sm:h-10 object-cover flex-shrink-0" />
-                      <Avatar.Fallback>{user?.name}</Avatar.Fallback>
+                        className="object-cover" />
+                      <Avatar.Fallback className="text-xs">{user?.name?.charAt(0)}</Avatar.Fallback>
                     </Avatar>
-                    <span className="text-default-800 dark:text-zinc-200 font-medium text-xs sm:text-sm hidden sm:inline-block truncate">
+                    <span className="text-default-800 dark:text-zinc-200 font-semibold text-xs sm:text-sm hidden sm:inline-block truncate group-hover:text-default-900 dark:group-hover:text-white transition-colors">
                       {user?.name}
                     </span>
                   </div>
                 </DropdownTrigger>
               </NavbarItem>
 
-              <DropdownMenu aria-label="User Actions" variant="flat">
-                <DropdownItem key="header" className="h-14 gap-2 border-b border-divider/50" textValue="User Context">
-                  <p className="text-xs text-default-500">Logged in as</p>
-                  <p className="font-semibold text-default-800 dark:text-zinc-200 text-xs sm:text-sm truncate">{user?.email}</p>
+              <DropdownMenu aria-label="User Actions" variant="flat" className="p-1.5">
+                <DropdownItem key="header" className="h-14 gap-2 border-b border-default-100 dark:border-zinc-800 mb-1 opacity-100 pointer-events-none" textValue="User Context">
+                  <p className="text-[11px] text-default-400 uppercase tracking-wider font-bold">Logged in as</p>
+                  <p className="font-semibold text-default-700 dark:text-zinc-300 text-xs sm:text-sm truncate">{user?.email}</p>
                 </DropdownItem>
-                <DropdownItem key="dashboard" startContent={<LayoutDashboard size={16} />} as={Link} href={`/dashboard/${user?.role || 'user'}`}>
+                <DropdownItem key="dashboard" startContent={<LayoutDashboard size={15} className="text-default-500" />} as={Link} href={`/dashboard/${user?.role || 'user'}`} className="rounded-xl py-2">
                   User Dashboard
                 </DropdownItem>
-                <DropdownItem key="profile" startContent={<User size={16} />} as={Link} href="/dashboard/profile">
+                <DropdownItem key="profile" startContent={<User size={15} className="text-default-500" />} as={Link} href={`/dashboard/${user?.role}`} className="rounded-xl py-2">
                   My Profile
                 </DropdownItem>
-                <DropdownItem key="logout" color="danger" className="text-danger" startContent={<LogOut size={16} />} onClick={handleLogout}>
+                <DropdownItem key="logout" color="danger" className="text-danger rounded-xl py-2 mt-1 bg-danger-50/50 hover:bg-danger/10" startContent={<LogOut size={15} />} onClick={handleLogout}>
                   Log Out
                 </DropdownItem>
               </DropdownMenu>
             </Dropdown>
           ) : (
-            <div className="flex gap-1 sm:gap-2 items-center">
+            <div className="flex gap-2 items-center">
               <NavbarItem>
-                <Link href="/login" className="text-xs sm:text-sm font-medium text-default-600 hover:text-default-900 dark:text-zinc-400 dark:hover:text-white transition-colors px-1.5 sm:px-2 py-1">
+                <Link href="/login" className="text-sm font-semibold text-default-600 hover:text-[#ff6b6b] dark:text-zinc-400 dark:hover:text-[#ff6b6b] transition-colors px-2 py-2">
                   Login
                 </Link>
               </NavbarItem>
               <NavbarItem>
-                <Button as={Link} color="primary" href="/signup" size="sm" className="font-medium rounded-xl text-xs sm:text-sm px-2.5 sm:px-4 h-7.5 sm:h-9 min-w-fit">
+                <Button as={Link} color="primary" href="/signup" size="sm" className="font-bold rounded-xl text-xs sm:text-sm px-4 h-9 bg-[#ff6b6b] hover:bg-[#ff5252] text-white shadow-sm shadow-danger-500/10 active:scale-[0.98] transition-all">
                   Sign Up
                 </Button>
               </NavbarItem>
@@ -217,7 +218,7 @@ export default function AppNavbar() {
         </NavbarContent>
 
         {/* 📱 MOBILE NAVIGATION DRAWER OVERLAY */}
-        <NavbarMenu className="pt-4 sm:pt-6 px-4 gap-1.5 sm:gap-2 bg-white/98 dark:bg-zinc-950/98 backdrop-blur-lg border-t border-divider/40 top-[calc(var(--navbar-height))] max-h-[calc(100vh-var(--navbar-height))] overflow-y-auto">
+        <NavbarMenu className="pt-6 px-4 gap-2 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border-t border-default-100 dark:border-zinc-900 top-[calc(var(--navbar-height))] max-h-[calc(100vh-var(--navbar-height))] overflow-y-auto transition-all">
           <NavbarMenuItem>
             <Link
               href="/"
@@ -231,47 +232,50 @@ export default function AppNavbar() {
 
           <NavbarMenuItem>
             <Link
-              href="/browse-products"
-              className={getLinkClass("/browse-products", true)}
+              href="/recipes"
+              className={getLinkClass("/recipes", true)}
               onClick={() => setIsMenuOpen(false)}
             >
-              <span>Browse Products</span>
+              <span>Browse Recipes</span>
               <ChevronRight size={16} className="text-default-400" />
             </Link>
           </NavbarMenuItem>
 
           <NavbarMenuItem>
             <Link
-              href="/dashboard/user"
+              href={`/dashboard/${user?.role}`}
               className={getLinkClass("/dashboard", true)}
               onClick={() => setIsMenuOpen(false)}
             >
               <span>Dashboard</span>
               <ChevronRight size={16} className="text-default-400" />
             </Link>
+          
           </NavbarMenuItem>
 
-          <div className="w-full my-1 sm:my-2 border-t border-divider/60" />
+          <div className="w-full my-2 border-t border-default-200/60 dark:border-zinc-800/60" />
 
           {/* Mobile Auth Section */}
           {isPending ? (
-            <div className="h-8 sm:h-10" />
+            <div className="h-10 flex items-center px-4">
+              <div className="w-6 h-6 rounded-full bg-default-200 dark:bg-zinc-800 animate-pulse" />
+            </div>
           ) : isLoggedIn ? (
             <>
-              <div className="flex items-center gap-2.5 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 mb-1 sm:mb-2 rounded-xl bg-default-50 dark:bg-zinc-900/50">
-                <Avatar>
+              <div className="flex items-center gap-3 px-4 py-3 mb-2 rounded-xl bg-default-50 dark:bg-zinc-900/40 border border-default-200/40 dark:border-zinc-800/40 mx-1">
+                <Avatar className="w-9 h-9 border border-default-200/60 dark:border-zinc-700">
                   <Avatar.Image src={user?.image}
                     referrerPolicy="no-referrer"
                     name={user?.name}
-                    className="w-8 h-8 sm:w-10 sm:h-10 object-cover flex-shrink-0" />
-                  <Avatar.Fallback>{user?.name}</Avatar.Fallback>
+                    className="object-cover" />
+                  <Avatar.Fallback>{user?.name?.charAt(0)}</Avatar.Fallback>
                 </Avatar>
 
                 <div className="flex flex-col min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm font-semibold text-default-900 dark:text-white truncate">
+                  <p className="text-sm font-bold text-default-900 dark:text-white truncate">
                     {user?.name}
                   </p>
-                  <p className="text-[11px] sm:text-xs text-default-400 truncate">
+                  <p className="text-xs text-default-400 truncate">
                     {user?.email}
                   </p>
                 </div>
@@ -280,10 +284,10 @@ export default function AppNavbar() {
               <NavbarMenuItem>
                 <Link
                   href={`/dashboard/${user?.role || "user"}`}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl text-default-700 dark:text-zinc-300 font-medium text-sm sm:text-base hover:bg-default-50 dark:hover:bg-zinc-900/50"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-default-700 dark:text-zinc-300 font-medium text-sm hover:bg-default-50 dark:hover:bg-zinc-900/40"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <LayoutDashboard size={16} className="text-default-500 sm:size-[18px]" />
+                  <LayoutDashboard size={16} className="text-default-400" />
                   <span>Dashboard Overview</span>
                 </Link>
               </NavbarMenuItem>
@@ -291,10 +295,10 @@ export default function AppNavbar() {
               <NavbarMenuItem>
                 <Link
                   href="/dashboard/profile"
-                  className="w-full flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl text-default-700 dark:text-zinc-300 font-medium text-sm sm:text-base hover:bg-default-50 dark:hover:bg-zinc-900/50"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-default-700 dark:text-zinc-300 font-medium text-sm hover:bg-default-50 dark:hover:bg-zinc-900/40"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <User size={16} className="text-default-500 sm:size-[18px]" />
+                  <User size={16} className="text-default-400" />
                   <span>My Profile Settings</span>
                 </Link>
               </NavbarMenuItem>
@@ -302,19 +306,19 @@ export default function AppNavbar() {
               <NavbarMenuItem>
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl text-danger font-medium text-sm sm:text-base text-left hover:bg-danger-50 dark:hover:bg-danger-950/20"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-danger font-semibold text-sm text-left hover:bg-danger-50 dark:hover:bg-danger-950/20"
                 >
-                  <LogOut size={16} className="sm:size-[18px]" />
+                  <LogOut size={16} />
                   <span>Log Out</span>
                 </button>
               </NavbarMenuItem>
             </>
           ) : (
-            <div className="mt-2 sm:mt-4 flex flex-col gap-2 pt-1 sm:pt-2">
+            <div className="mt-2 flex flex-col gap-2.5 px-1">
               <NavbarMenuItem>
                 <Link
                   href="/login"
-                  className="w-full text-center block py-2.5 sm:py-3 rounded-xl border border-divider font-medium text-sm sm:text-base text-default-700 dark:text-zinc-300 bg-transparent hover:bg-default-50"
+                  className="w-full text-center block py-3 rounded-xl border border-default-200 dark:border-zinc-800 font-semibold text-sm text-default-700 dark:text-zinc-300 bg-transparent hover:bg-default-50 dark:hover:bg-zinc-900/40 transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Login
@@ -325,8 +329,7 @@ export default function AppNavbar() {
                 <Button
                   as={Link}
                   href="/signup"
-                  color="primary"
-                  className="w-full py-5 sm:py-6 rounded-xl font-medium text-sm sm:text-base"
+                  className="w-full py-5 rounded-xl font-bold text-sm bg-[#ff6b6b] hover:bg-[#ff5252] text-white shadow-sm"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Sign Up
