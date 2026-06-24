@@ -12,27 +12,32 @@ const FeaturedRecipes = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const fetchFeaturedRecipes = async () => {
-            try {
-                const response = await fetch('http://localhost:5000/FeaturedRecipes');
+   useEffect(() => {
+    const fetchFeaturedRecipes = async () => {
+        try {
+            // আপনার মেইন এপিআই রুট (যা দিয়ে সব রেসিপি আসে)
+            const response = await fetch('http://localhost:5000/api/recipes');
 
-                if (!response.ok) {
-                    throw new Error('Failed to fetch featured recipes');
-                }
-
-                const data = await response.json();
-                setRecipes(data);
-            } catch (err) {
-                setError(err.message);
-                console.error('Error fetching featured recipes:', err);
-            } finally {
-                setIsLoading(false);
+            if (!response.ok) {
+                throw new Error('Failed to fetch recipes');
             }
-        };
 
-        fetchFeaturedRecipes();
-    }, []);
+            const data = await response.json();
+            
+            // 📝 ফ্রন্টএন্ডেই ফিল্টার করে শুধু true হওয়া রেসিপিগুলো রাখা হচ্ছে
+            const featuredOnly = data.filter(recipe => recipe.isFeatured === true);
+            
+            setRecipes(featuredOnly);
+        } catch (err) {
+            setError(err.message);
+            console.error('Error fetching featured recipes:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    fetchFeaturedRecipes();
+}, []);
 
     // Get category color
     const getCategoryColor = (category) => {
@@ -229,7 +234,7 @@ const floatingAnimation = {
                                     {/* Action Buttons */}
                                     <div className="flex items-center gap-3">
                                         <Link
-                                            href={`/FeaturedRecipes/${recipeId}`}
+                                            href={`/recipes/${recipeId}`}
                                             className="flex-1 px-4 py-2 bg-[#d52626] hover:bg-[#c24242] text-white text-sm font-medium rounded-lg transition-colors duration-200 text-center"
                                         >
                                             View Recipe
