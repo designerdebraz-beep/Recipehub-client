@@ -230,10 +230,10 @@ export default function BrowseAllProduct() {
                         </div>
                         <span className="text-xs font-semibold text-muted-foreground">Chef Collection</span>
                       </div>
-                      <div className="flex items-center gap-1.5 px-2 text-muted-foreground">
+                      {/* <div className="flex items-center gap-1.5 px-2 text-muted-foreground">
                         <HeartIcon className="size-4" />
                         <span className="text-xs font-bold">119</span>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </Card>
