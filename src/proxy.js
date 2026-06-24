@@ -20,5 +20,5 @@ export async function proxy(request) {
 }
 
 export const config = {
-    matcher: [ "/dashboard/undefined"]
+    matcher: [ "/dashboard/:path*", '/recipes/:path+']
 }
