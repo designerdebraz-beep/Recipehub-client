@@ -18,36 +18,42 @@ const PurchasedRecipesContent = () => {
 
   useEffect(() => {
     const handleConfirmAndFetch = async () => {
-      try {
-        const session = await authClient.getSession();
-        const userEmail = session?.data?.user?.email || email;
+  try {
+    const session = await authClient.getSession();
+    const rawEmail = session?.data?.user?.email || email;
+    const userEmail = rawEmail ? rawEmail.toLowerCase().trim() : null;
 
-        if (!userEmail) {
-          setLoading(false);
-          return;
-        }
+    if (!userEmail) {
+      setLoading(false);
+      return;
+    }
 
-        // ১. যদি ইউআরএল এ স্ট্রাইপের সেশন ডাটা থাকে, তবে প্রথমে ব্যাকএন্ডে কনফার্ম করা হবে
-        if (sessionId && recipeId) {
-          await fetch("http://localhost:5000/api/purchased-recipes/confirm", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sessionId, recipeId, email: userEmail })
-          });
-        }
-
-        // ২. ইউজারের কেনা সব রেসিপির লিস্ট ব্যাকএন্ড থেকে ফেচ করা
-        const res = await fetch(`http://localhost:5000/api/purchased-recipes/${userEmail}`);
-        const data = await res.json();
-        if (res.ok) {
-          setPurchasedRecipes(data);
-        }
-      } catch (error) {
-        console.error("Error loading purchased recipes:", error);
-      } finally {
-        setLoading(false);
+    // ১. পেমেন্ট কনফার্ম করা
+    if (sessionId && recipeId) {
+      const confirmRes = await fetch("http://localhost:5000/api/purchased-recipes/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId, recipeId, email: userEmail })
+      });
+      
+      if (confirmRes.ok) {
+        // ডাটাবেজে রাইট হওয়ার জন্য ৩০০ মিলিমেকেন্ড ওয়েট করা (সেফটি মেজার)
+        await new Promise(resolve => setTimeout(resolve, 300));
       }
-    };
+    }
+
+    // ২. ইউজারের কেনা সব রেসিপির লিস্ট ফেচ করা
+    const res = await fetch(`http://localhost:5000/api/purchased-recipes/${userEmail}`);
+    if (res.ok) {
+      const data = await res.json();
+      setPurchasedRecipes(data);
+    }
+  } catch (error) {
+    console.error("Error loading purchased recipes:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
     handleConfirmAndFetch();
   }, [sessionId, recipeId, email]);

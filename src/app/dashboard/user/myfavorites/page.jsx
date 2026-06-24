@@ -16,36 +16,39 @@ const Myfavorites = () => {
     const [favorites, setFavorites] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchFavorites = async () => {
-            try {
-                const session = await authClient.getSession();
-                const userId = session?.data?.user?.id;
+   
+useEffect(() => {
+    const fetchFavorites = async () => {
+        try {
+            const session = await authClient.getSession();
+            const userId = session?.data?.user?.id;
 
-                if (!userId) {
-                    setLoading(false);
-                    return;
-                }
+            console.log("Current Logged In User ID:", userId); // কনসোলে আইডি চেক করার জন্য
 
-                // ইউজার আইডি অনুযায়ী ফেভারিট ডাটা আনা হচ্ছে
-                const res = await fetch(`http://localhost:5000/api/favorites/${userId}`);
-                const data = await res.json();
-                
-                if (Array.isArray(data)) {
-                    setFavorites(data);
-                } else {
-                    setFavorites([]);
-                }
-            } catch (error) {
-                console.error("Error fetching favorites:", error);
-                setFavorites([]);
-            } finally {
+            if (!userId) {
                 setLoading(false);
+                return;
             }
-        };
 
-        fetchFavorites();
-    }, []);
+            // যদি আপনার অথেনটিকেশন সিস্টেমে টোকেন লাগে, তবে headers-এ token পাস করবেন
+            const res = await fetch(`http://localhost:5000/api/favorites/${userId}`);
+            const data = await res.json();
+            
+            if (Array.isArray(data)) {
+                setFavorites(data);
+            } else {
+                setFavorites([]);
+            }
+        } catch (error) {
+            console.error("Error fetching favorites:", error);
+            setFavorites([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    fetchFavorites();
+}, []);
 
     // ফেভারিট লিস্ট থেকে রিমুভ করার হ্যান্ডলার
     const handleRemoveFavorite = async (recipeId) => {

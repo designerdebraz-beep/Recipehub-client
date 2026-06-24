@@ -94,40 +94,51 @@ export default function RecipeDetailClientBlock({ initialRecipe }) {
   };
 
   // ডায়নামিক ফেভারিট টগল হ্যান্ডলার 
-  const handleFavoriteToggle = async () => {
-    try {
-      const session = await authClient.getSession();
-      const userId = session?.data?.user?.id;
+  // ১. আপডেট করা handleFavoriteToggle
+const handleFavoriteToggle = async () => {
+  try {
+    const session = await authClient.getSession();
+    const userId = session?.data?.user?.id;
 
-      if (!userId) {
-        alert("Please login first to save favorites!");
-        return;
-      }
-
-      const res = await fetch("http://localhost:5000/api/favorites", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          userId: userId,
-          recipeId: initialRecipe._id
-        })
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        setIsFavorite(data.isFavorite);
-        alert(data.message);
-      } else {
-        alert(data.message || "Something went wrong backend side!");
-      }
-    } catch (error) {
-      console.error("Error updating favorite:", error);
-      alert("Failed to connect to the server.");
+    if (!userId) {
+      alert("Please login first to save favorites!");
+      return;
     }
-  };
+
+    const res = await fetch("http://localhost:5000/api/favorites", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: userId,
+        recipeId: initialRecipe._id
+      })
+    });
+
+    // রেসপন্স টাইপ JSON কি না তা আগে নিশ্চিত করা (HTML এরর হ্যান্ডেল করার জন্য)
+    const contentType = res.headers.get("content-type");
+    if (!res.ok || !contentType || !contentType.includes("application/json")) {
+      const textError = await res.text();
+      console.error("Backend HTML Error:", textError);
+      alert("Server returned an error. Please check your backend endpoints.");
+      return;
+    }
+
+    const data = await res.json();
+
+    if (data.success) {
+      setIsFavorite(data.isFavorite);
+      // এখানে alert(data.message) ছিল, ব্যাকএন্ড যেহেতু মেসেজ পাঠায় না তাই কাস্টম মেসেজ সেট করুন
+      alert(data.isFavorite ? "Added to favorites successfully!" : "Removed from favorites!");
+    } else {
+      alert(data.message || "Something went wrong backend side!");
+    }
+  } catch (error) {
+    console.error("Error updating favorite:", error);
+    alert("Failed to connect to the server.");
+  }
+};
 
   const handleStripePurchaseAction = async () => {
     setIsStripeProcessing(true);
