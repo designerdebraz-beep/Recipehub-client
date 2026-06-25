@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem } from "@heroui/navbar";
 import { Link } from "@heroui/link";
 import { Button } from "@heroui/button";
+import { FiMenu, FiX } from "react-icons/fi";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
 import { Avatar } from "@heroui/avatar";
 import { usePathname } from "next/navigation";
@@ -73,17 +74,16 @@ export default function AppNavbar() {
       >
         {/* 📱 MOBILE VIEWPORT BRAND BAR */}
         <NavbarContent className="md:hidden gap-2 w-full flex items-center" justify="start">
-          
-          {/* 🍔 CUSTOM ANIMATED HAMBURGER BUTTON (FIXED) */}
+          {/* 🍔 REACT ICONS HAMBURGER BUTTON (FIXED CLASS) */}
           <NavbarMenuToggle
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            className="text-default-600 dark:text-zinc-400 h-10 w-10 flex items-center justify-center rounded-xl hover:bg-default-100 dark:hover:bg-zinc-900/50 transition-colors [*_span:not(.bg-current)]:sr-only"
+            className="text-default-600 dark:text-zinc-400 h-10 w-10 flex items-center justify-center rounded-xl hover:bg-default-100 dark:hover:bg-zinc-900/50 transition-colors"
             icon={(isOpen) => (
-              <div className="flex flex-col justify-center items-center w-5 h-5 relative gap-[4px]">
-                <span className={`bg-current h-[2px] w-5 rounded-full transition-all duration-300 transform origin-center ${isOpen ? "rotate-45 translate-y-[6px]" : ""}`} />
-                <span className={`bg-current h-[2px] w-5 rounded-full transition-all duration-300 ${isOpen ? "opacity-0" : ""}`} />
-                <span className={`bg-current h-[2px] w-5 rounded-full transition-all duration-300 transform origin-center ${isOpen ? "-rotate-45 -translate-y-[6px]" : ""}`} />
-              </div>
+              isOpen ? (
+                <FiX className="w-6 h-6 transition-all duration-300" />
+              ) : (
+                <FiMenu className="w-6 h-6 transition-all duration-300" />
+              )
             )}
           />
 
@@ -138,7 +138,8 @@ export default function AppNavbar() {
             </Link>
           </NavbarItem>
           <NavbarItem>
-            <Link href={`/dashboard/${user?.role}`} className={getLinkClass("/dashboard")}>
+            {/* SAFE ROUTE WITH FALLBACK */}
+            <Link href={`/dashboard/${user?.role || 'user'}`} className={getLinkClass("/dashboard")}>
               Dashboard
             </Link>
           </NavbarItem>
@@ -167,13 +168,12 @@ export default function AppNavbar() {
               <NavbarItem>
                 <DropdownTrigger>
                   <div className="flex items-center gap-1.5 sm:gap-2 cursor-pointer group select-none py-1 pl-1 pr-2 sm:py-1.5 sm:pl-1.5 sm:pr-3 rounded-xl bg-default-50/50 hover:bg-default-100 dark:bg-zinc-900/40 dark:hover:bg-zinc-800/80 border border-default-200/30 dark:border-zinc-800/30 transition-all max-w-[120px] sm:max-w-[200px]">
-                    <Avatar className="w-6 h-6 sm:w-8 sm:h-8 border border-default-200/60 dark:border-zinc-700">
-                      <Avatar.Image src={user?.image}
-                        referrerPolicy="no-referrer"
-                        name={user?.name}
-                        className="object-cover" />
-                      <Avatar.Fallback className="text-xs">{user?.name?.charAt(0)}</Avatar.Fallback>
-                    </Avatar>
+                    {/* FIXED HEROUI AVATAR COMPONENT */}
+                    <Avatar 
+                      src={user?.image || undefined} 
+                      name={user?.name || "?"}
+                      className="w-6 h-6 sm:w-8 sm:h-8 border border-default-200/60 dark:border-zinc-700 text-xs"
+                    />
                     <span className="text-default-800 dark:text-zinc-200 font-semibold text-xs sm:text-sm hidden sm:inline-block truncate group-hover:text-default-900 dark:group-hover:text-white transition-colors">
                       {user?.name}
                     </span>
@@ -189,7 +189,7 @@ export default function AppNavbar() {
                 <DropdownItem key="dashboard" startContent={<LayoutDashboard size={15} className="text-default-500" />} as={Link} href={`/dashboard/${user?.role || 'user'}`} className="rounded-xl py-2">
                   User Dashboard
                 </DropdownItem>
-                <DropdownItem key="profile" startContent={<User size={15} className="text-default-500" />} as={Link} href={`/dashboard/${user?.role}`} className="rounded-xl py-2">
+                <DropdownItem key="profile" startContent={<User size={15} className="text-default-500" />} as={Link} href={`/dashboard/${user?.role || 'user'}`} className="rounded-xl py-2">
                   My Profile
                 </DropdownItem>
                 <DropdownItem key="logout" color="danger" className="text-danger rounded-xl py-2 mt-1 bg-danger-50/50 hover:bg-danger/10" startContent={<LogOut size={15} />} onClick={handleLogout}>
@@ -230,7 +230,7 @@ export default function AppNavbar() {
           </NavbarMenuItem>
 
           <NavbarMenuItem>
-            <Link href={`/dashboard/${user?.role}`} className={getLinkClass("/dashboard", true)} onClick={() => setIsMenuOpen(false)}>
+            <Link href={`/dashboard/${user?.role || 'user'}`} className={getLinkClass("/dashboard", true)} onClick={() => setIsMenuOpen(false)}>
               <span>Dashboard</span>
               <ChevronRight size={16} className="text-default-400" />
             </Link>
@@ -245,10 +245,12 @@ export default function AppNavbar() {
           ) : isLoggedIn ? (
             <>
               <div className="flex items-center gap-3 px-4 py-3 mb-2 rounded-xl bg-default-50 dark:bg-zinc-900/40 border border-default-200/40 dark:border-zinc-800/40 mx-1">
-                <Avatar className="w-9 h-9 border border-default-200/60 dark:border-zinc-700">
-                  <Avatar.Image src={user?.image} referrerPolicy="no-referrer" name={user?.name} className="object-cover" />
-                  <Avatar.Fallback>{user?.name?.charAt(0)}</Avatar.Fallback>
-                </Avatar>
+                {/* FIXED HEROUI AVATAR COMPONENT */}
+                <Avatar 
+                  src={user?.image || undefined} 
+                  name={user?.name || "?"} 
+                  className="w-9 h-9 border border-default-200/60 dark:border-zinc-700 text-xs" 
+                />
                 <div className="flex flex-col min-w-0 flex-1">
                   <p className="text-sm font-bold text-default-900 dark:text-white truncate">{user?.name}</p>
                   <p className="text-xs text-default-400 truncate">{user?.email}</p>
@@ -263,7 +265,8 @@ export default function AppNavbar() {
               </NavbarMenuItem>
 
               <NavbarMenuItem>
-                <Link href="/dashboard/user/Profile" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-default-700 dark:text-zinc-300 font-medium text-sm hover:bg-default-50 dark:hover:bg-zinc-900/40" onClick={() => setIsMenuOpen(false)}>
+                {/* DYNAMIC PROFILE ROUTE FOR MOBILE */}
+                <Link href={`/dashboard/${user?.role || "user"}`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-default-700 dark:text-zinc-300 font-medium text-sm hover:bg-default-50 dark:hover:bg-zinc-900/40" onClick={() => setIsMenuOpen(false)}>
                   <User size={16} className="text-default-400" />
                   <span>My Profile Settings</span>
                 </Link>
