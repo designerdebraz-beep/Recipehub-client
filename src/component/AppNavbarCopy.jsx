@@ -74,10 +74,10 @@ export default function AppNavbar() {
         className="bg-white/70 dark:bg-zinc-950/70 backdrop-blur-md border-b border-default-200/50 dark:border-zinc-800/50 h-16 sm:h-20 w-full transition-colors duration-300"
       >
         {/* 📱 MOBILE VIEWPORT BRAND BAR */}
-        <NavbarContent className="md:hidden gap-3 w-full" justify="start">
+        <NavbarContent className="md:hidden gap-2 w-full flex items-center" justify="start">
           {/* 🍔 CUSTOM ANIMATED HAMBURGER BUTTON */}
           <NavbarMenuToggle
-            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-label={isMenuOpen ? "Close menu" : ""}
             className="text-default-600 dark:text-zinc-400 h-10 w-10 flex items-center justify-center rounded-xl hover:bg-default-100 dark:hover:bg-zinc-900/50 transition-colors"
             icon={(isOpen) => (
               <div className="flex flex-col justify-center items-center w-5 h-5 relative gap-[4px]">
@@ -88,17 +88,18 @@ export default function AppNavbar() {
             )}
           />
 
-          <NavbarBrand as={Link} href="/" className="cursor-pointer select-none items-center gap-2 max-w-fit">
-            <div className="relative w-5xl h-5xl flex items-center justify-center overflow-hidden rounded-xl  dark:bg-white p-1.5 transition-colors">
+          <NavbarBrand as={Link} href="/" className="cursor-pointer select-none flex items-center gap-2 max-w-fit">
+            {/* মোবাইল ফ্রেন্ডলি ফিক্সড সাইজ (w-8 h-8) দেওয়া হলো */}
+            <div className="relative w-8 h-8 flex items-center justify-center overflow-hidden rounded-lg dark:bg-white p-1 transition-colors flex-shrink-0">
               <Image
-                width={200}
-                height={200}
+                width={32}
+                height={32}
                 src="/Logo.png"
                 alt="logo"
                 className="object-contain dark:invert"
               />
             </div>
-            <p className="font-bold text-base tracking-tight text-default-900 dark:text-white truncate">
+            <p className="font-bold text-sm tracking-tight text-default-900 dark:text-white truncate max-w-[100px] xs:max-w-none">
               RecipeHub
             </p>
           </NavbarBrand>
@@ -113,8 +114,8 @@ export default function AppNavbar() {
           >
             <div className="relative w-10 h-10 flex items-center justify-center overflow-hidden rounded-xl dark:bg-white p-1.5 transition-colors">
               <Image
-                width={100}
-                height={100}
+                width={40}
+                height={40}
                 src="/Logo.png"
                 alt="logo"
                 className="object-contain dark:invert"
@@ -135,43 +136,42 @@ export default function AppNavbar() {
           </NavbarItem>
           <NavbarItem>
             <Link href="/recipes" className={getLinkClass("/recipes")}>
-             Browse Recipes
+              Browse Recipes
             </Link>
           </NavbarItem>
           <NavbarItem>
             <Link href={`/dashboard/${user?.role}`} className={getLinkClass("/dashboard")}>
               Dashboard
             </Link>
-           
           </NavbarItem>
         </NavbarContent>
 
         {/* 🛠️ RIGHT ACTION UTILITY GROUP */}
-        <NavbarContent justify="end" className="gap-2 sm:gap-3">
+        <NavbarContent justify="end" className="gap-1.5 sm:gap-3">
           {/* Theme Toggler */}
           <NavbarItem>
             <Button
               isIconOnly
               variant="light"
-              className="text-default-600 dark:text-zinc-400 rounded-xl hover:bg-default-100 dark:hover:bg-zinc-800/60 w-10 h-10 transition-colors"
+              className="text-default-600 dark:text-zinc-400 rounded-xl hover:bg-default-100 dark:hover:bg-zinc-800/60 w-9 h-9 sm:w-10 sm:h-10 transition-colors"
               onClick={toggleTheme}
               aria-label="Toggle theme"
             >
-              {isDarkMode ? <Sun size={18} className="text-amber-500 animate-pulse" /> : <Moon size={18} className="stroke-[1.5]" />}
+              {isDarkMode ? <Sun size={17} className="text-amber-500 animate-pulse" /> : <Moon size={17} className="stroke-[1.5]" />}
             </Button>
           </NavbarItem>
 
           {/* Skeleton/Auth State Loader */}
           {isPending ? (
-            <NavbarItem className="w-10 h-10 flex items-center justify-center">
-              <div className="w-8 h-8 rounded-full bg-default-200 dark:bg-zinc-800 animate-pulse" />
+            <NavbarItem className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-default-200 dark:bg-zinc-800 animate-pulse" />
             </NavbarItem>
           ) : isLoggedIn ? (
             <Dropdown placement="bottom-end" backdrop="blur" className="bg-white dark:bg-zinc-900 border border-default-100 dark:border-zinc-800 rounded-2xl shadow-xl">
               <NavbarItem>
                 <DropdownTrigger>
-                  <div className="flex items-center gap-2 cursor-pointer group select-none py-1.5 pl-1.5 pr-2.5 sm:pr-3 rounded-xl bg-default-50/50 hover:bg-default-100 dark:bg-zinc-900/40 dark:hover:bg-zinc-800/80 border border-default-200/30 dark:border-zinc-800/30 transition-all max-w-[140px] sm:max-w-[200px]">
-                    <Avatar className="w-7 h-7 sm:w-8 sm:h-8 border border-default-200/60 dark:border-zinc-700">
+                  <div className="flex items-center gap-1.5 sm:gap-2 cursor-pointer group select-none py-1 pl-1 pr-2 sm:py-1.5 sm:pl-1.5 sm:pr-3 rounded-xl bg-default-50/50 hover:bg-default-100 dark:bg-zinc-900/40 dark:hover:bg-zinc-800/80 border border-default-200/30 dark:border-zinc-800/30 transition-all max-w-[120px] sm:max-w-[200px]">
+                    <Avatar className="w-6 h-6 sm:w-8 sm:h-8 border border-default-200/60 dark:border-zinc-700">
                       <Avatar.Image src={user?.image}
                         referrerPolicy="no-referrer"
                         name={user?.name}
@@ -202,14 +202,14 @@ export default function AppNavbar() {
               </DropdownMenu>
             </Dropdown>
           ) : (
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-1 sm:gap-2 items-center">
               <NavbarItem>
-                <Link href="/login" className="text-sm font-semibold text-default-600 hover:text-[#ff6b6b] dark:text-zinc-400 dark:hover:text-[#ff6b6b] transition-colors px-2 py-2">
+                <Link href="/login" className="text-xs sm:text-sm font-semibold text-default-600 hover:text-[#ff6b6b] dark:text-zinc-400 dark:hover:text-[#ff6b6b] transition-colors px-1.5 py-2">
                   Login
                 </Link>
               </NavbarItem>
               <NavbarItem>
-                <Button as={Link} color="primary" href="/signup" size="sm" className="font-bold rounded-xl text-xs sm:text-sm px-4 h-9 bg-[#ff6b6b] hover:bg-[#ff5252] text-white shadow-sm shadow-danger-500/10 active:scale-[0.98] transition-all">
+                <Button as={Link} color="primary" href="/signup" size="sm" className="font-bold rounded-xl text-xs sm:text-sm px-3 sm:px-4 h-8 sm:h-9 bg-[#ff6b6b] hover:bg-[#ff5252] text-white shadow-sm shadow-danger-500/10 active:scale-[0.98] transition-all">
                   Sign Up
                 </Button>
               </NavbarItem>
@@ -250,7 +250,6 @@ export default function AppNavbar() {
               <span>Dashboard</span>
               <ChevronRight size={16} className="text-default-400" />
             </Link>
-          
           </NavbarMenuItem>
 
           <div className="w-full my-2 border-t border-default-200/60 dark:border-zinc-800/60" />
@@ -294,7 +293,7 @@ export default function AppNavbar() {
 
               <NavbarMenuItem>
                 <Link
-                  href="/dashboard/profile"
+                  href="/dashboard/user/Profile"
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-default-700 dark:text-zinc-300 font-medium text-sm hover:bg-default-50 dark:hover:bg-zinc-900/40"
                   onClick={() => setIsMenuOpen(false)}
                 >

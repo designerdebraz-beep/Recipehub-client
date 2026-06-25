@@ -51,7 +51,6 @@ export default function AppNavbar() {
     setIsMenuOpen(false);
   };
 
-  // Shared active pill helper layout for cross-device consistency
   const getLinkClass = (path, isMobile = false) => {
     const isActive = pathname === path || (path !== "/" && pathname?.startsWith(path));
     if (isMobile) {
@@ -66,7 +65,6 @@ export default function AppNavbar() {
 
   return (
     <div className="w-full fixed top-0 inset-x-0 z-50 flex flex-col">
-      {/* 🧭 PREMIUM GLASSMORPHISM NAVBAR */}
       <Navbar
         isMenuOpen={isMenuOpen}
         onMenuOpenChange={setIsMenuOpen}
@@ -75,10 +73,11 @@ export default function AppNavbar() {
       >
         {/* 📱 MOBILE VIEWPORT BRAND BAR */}
         <NavbarContent className="md:hidden gap-2 w-full flex items-center" justify="start">
-          {/* 🍔 CUSTOM ANIMATED HAMBURGER BUTTON */}
+          
+          {/* 🍔 CUSTOM ANIMATED HAMBURGER BUTTON (FIXED) */}
           <NavbarMenuToggle
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            className="text-default-600 dark:text-zinc-400 h-10 w-10 flex items-center justify-center rounded-xl hover:bg-default-100 dark:hover:bg-zinc-900/50 transition-colors"
+            className="text-default-600 dark:text-zinc-400 h-10 w-10 flex items-center justify-center rounded-xl hover:bg-default-100 dark:hover:bg-zinc-900/50 transition-colors [*_span:not(.bg-current)]:sr-only"
             icon={(isOpen) => (
               <div className="flex flex-col justify-center items-center w-5 h-5 relative gap-[4px]">
                 <span className={`bg-current h-[2px] w-5 rounded-full transition-all duration-300 transform origin-center ${isOpen ? "rotate-45 translate-y-[6px]" : ""}`} />
@@ -89,7 +88,6 @@ export default function AppNavbar() {
           />
 
           <NavbarBrand as={Link} href="/" className="cursor-pointer select-none flex items-center gap-2 max-w-fit">
-            {/* মোবাইল ফ্রেন্ডলি ফিক্সড সাইজ (w-8 h-8) দেওয়া হলো */}
             <div className="relative w-8 h-8 flex items-center justify-center overflow-hidden rounded-lg dark:bg-white p-1 transition-colors flex-shrink-0">
               <Image
                 width={32}
@@ -148,7 +146,6 @@ export default function AppNavbar() {
 
         {/* 🛠️ RIGHT ACTION UTILITY GROUP */}
         <NavbarContent justify="end" className="gap-1.5 sm:gap-3">
-          {/* Theme Toggler */}
           <NavbarItem>
             <Button
               isIconOnly
@@ -161,7 +158,6 @@ export default function AppNavbar() {
             </Button>
           </NavbarItem>
 
-          {/* Skeleton/Auth State Loader */}
           {isPending ? (
             <NavbarItem className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center">
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-default-200 dark:bg-zinc-800 animate-pulse" />
@@ -220,33 +216,21 @@ export default function AppNavbar() {
         {/* 📱 MOBILE NAVIGATION DRAWER OVERLAY */}
         <NavbarMenu className="pt-6 px-4 gap-2 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border-t border-default-100 dark:border-zinc-900 top-[calc(var(--navbar-height))] max-h-[calc(100vh-var(--navbar-height))] overflow-y-auto transition-all">
           <NavbarMenuItem>
-            <Link
-              href="/"
-              className={getLinkClass("/", true)}
-              onClick={() => setIsMenuOpen(false)}
-            >
+            <Link href="/" className={getLinkClass("/", true)} onClick={() => setIsMenuOpen(false)}>
               <span>Home</span>
               <ChevronRight size={16} className="text-default-400" />
             </Link>
           </NavbarMenuItem>
 
           <NavbarMenuItem>
-            <Link
-              href="/recipes"
-              className={getLinkClass("/recipes", true)}
-              onClick={() => setIsMenuOpen(false)}
-            >
+            <Link href="/recipes" className={getLinkClass("/recipes", true)} onClick={() => setIsMenuOpen(false)}>
               <span>Browse Recipes</span>
               <ChevronRight size={16} className="text-default-400" />
             </Link>
           </NavbarMenuItem>
 
           <NavbarMenuItem>
-            <Link
-              href={`/dashboard/${user?.role}`}
-              className={getLinkClass("/dashboard", true)}
-              onClick={() => setIsMenuOpen(false)}
-            >
+            <Link href={`/dashboard/${user?.role}`} className={getLinkClass("/dashboard", true)} onClick={() => setIsMenuOpen(false)}>
               <span>Dashboard</span>
               <ChevronRight size={16} className="text-default-400" />
             </Link>
@@ -254,7 +238,6 @@ export default function AppNavbar() {
 
           <div className="w-full my-2 border-t border-default-200/60 dark:border-zinc-800/60" />
 
-          {/* Mobile Auth Section */}
           {isPending ? (
             <div className="h-10 flex items-center px-4">
               <div className="w-6 h-6 rounded-full bg-default-200 dark:bg-zinc-800 animate-pulse" />
@@ -263,50 +246,31 @@ export default function AppNavbar() {
             <>
               <div className="flex items-center gap-3 px-4 py-3 mb-2 rounded-xl bg-default-50 dark:bg-zinc-900/40 border border-default-200/40 dark:border-zinc-800/40 mx-1">
                 <Avatar className="w-9 h-9 border border-default-200/60 dark:border-zinc-700">
-                  <Avatar.Image src={user?.image}
-                    referrerPolicy="no-referrer"
-                    name={user?.name}
-                    className="object-cover" />
+                  <Avatar.Image src={user?.image} referrerPolicy="no-referrer" name={user?.name} className="object-cover" />
                   <Avatar.Fallback>{user?.name?.charAt(0)}</Avatar.Fallback>
                 </Avatar>
-
                 <div className="flex flex-col min-w-0 flex-1">
-                  <p className="text-sm font-bold text-default-900 dark:text-white truncate">
-                    {user?.name}
-                  </p>
-                  <p className="text-xs text-default-400 truncate">
-                    {user?.email}
-                  </p>
+                  <p className="text-sm font-bold text-default-900 dark:text-white truncate">{user?.name}</p>
+                  <p className="text-xs text-default-400 truncate">{user?.email}</p>
                 </div>
               </div>
 
               <NavbarMenuItem>
-                <Link
-                  href={`/dashboard/${user?.role || "user"}`}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-default-700 dark:text-zinc-300 font-medium text-sm hover:bg-default-50 dark:hover:bg-zinc-900/40"
-                  onClick={() => setIsMenuOpen(false)}
-                >
+                <Link href={`/dashboard/${user?.role || "user"}`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-default-700 dark:text-zinc-300 font-medium text-sm hover:bg-default-50 dark:hover:bg-zinc-900/40" onClick={() => setIsMenuOpen(false)}>
                   <LayoutDashboard size={16} className="text-default-400" />
                   <span>Dashboard Overview</span>
                 </Link>
               </NavbarMenuItem>
 
               <NavbarMenuItem>
-                <Link
-                  href="/dashboard/user/Profile"
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-default-700 dark:text-zinc-300 font-medium text-sm hover:bg-default-50 dark:hover:bg-zinc-900/40"
-                  onClick={() => setIsMenuOpen(false)}
-                >
+                <Link href="/dashboard/user/Profile" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-default-700 dark:text-zinc-300 font-medium text-sm hover:bg-default-50 dark:hover:bg-zinc-900/40" onClick={() => setIsMenuOpen(false)}>
                   <User size={16} className="text-default-400" />
                   <span>My Profile Settings</span>
                 </Link>
               </NavbarMenuItem>
 
               <NavbarMenuItem>
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-danger font-semibold text-sm text-left hover:bg-danger-50 dark:hover:bg-danger-950/20"
-                >
+                <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-danger font-semibold text-sm text-left hover:bg-danger-50 dark:hover:bg-danger-950/20">
                   <LogOut size={16} />
                   <span>Log Out</span>
                 </button>
@@ -315,22 +279,12 @@ export default function AppNavbar() {
           ) : (
             <div className="mt-2 flex flex-col gap-2.5 px-1">
               <NavbarMenuItem>
-                <Link
-                  href="/login"
-                  className="w-full text-center block py-3 rounded-xl border border-default-200 dark:border-zinc-800 font-semibold text-sm text-default-700 dark:text-zinc-300 bg-transparent hover:bg-default-50 dark:hover:bg-zinc-900/40 transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
+                <Link href="/login" className="w-full text-center block py-3 rounded-xl border border-default-200 dark:border-zinc-800 font-semibold text-sm text-default-700 dark:text-zinc-300 bg-transparent hover:bg-default-50 dark:hover:bg-zinc-900/40 transition-colors" onClick={() => setIsMenuOpen(false)}>
                   Login
                 </Link>
               </NavbarMenuItem>
-
               <NavbarMenuItem>
-                <Button
-                  as={Link}
-                  href="/signup"
-                  className="w-full py-5 rounded-xl font-bold text-sm bg-[#ff6b6b] hover:bg-[#ff5252] text-white shadow-sm"
-                  onClick={() => setIsMenuOpen(false)}
-                >
+                <Button as={Link} href="/signup" className="w-full py-5 rounded-xl font-bold text-sm bg-[#ff6b6b] hover:bg-[#ff5252] text-white shadow-sm" onClick={() => setIsMenuOpen(false)}>
                   Sign Up
                 </Button>
               </NavbarMenuItem>
