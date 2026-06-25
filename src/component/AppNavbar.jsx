@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from "react";
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem } from "@heroui/navbar";
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenu, NavbarMenuItem } from "@heroui/navbar";
 import { Link } from "@heroui/link";
 import { Button } from "@heroui/button";
 import { FiMenu, FiX } from "react-icons/fi";
@@ -17,12 +17,10 @@ export default function AppNavbar() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const pathname = usePathname();
 
-  // --- LIVE AUTH STATE WITH LOADING CHECK ---
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
   const isLoggedIn = !!user;
 
-  // Sync initial dark mode setting on load
   useEffect(() => {
     const root = window.document.documentElement;
     const initialDark = root.classList.contains("dark") || localStorage.getItem("theme") === "dark";
@@ -72,30 +70,20 @@ export default function AppNavbar() {
         maxWidth="xl"
         className="bg-white/70 dark:bg-zinc-950/70 backdrop-blur-md border-b border-default-200/50 dark:border-zinc-800/50 h-16 sm:h-20 w-full transition-colors duration-300"
       >
-        {/* 📱 MOBILE VIEWPORT BRAND BAR */}
         <NavbarContent className="md:hidden gap-2 w-full flex items-center" justify="start">
-          {/* 🍔 REACT ICONS HAMBURGER BUTTON (FIXED CLASS) */}
-          <NavbarMenuToggle
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="text-default-600 dark:text-zinc-400 h-10 w-10 flex items-center justify-center rounded-xl hover:bg-default-100 dark:hover:bg-zinc-900/50 transition-colors flex-shrink-0"
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            className="text-default-600 dark:text-zinc-400 h-10 w-10 flex items-center justify-center rounded-xl hover:bg-default-100 dark:hover:bg-zinc-900/50 transition-colors"
-            icon={(isOpen) => (
-              isOpen ? (
-                <FiX className="w-6 h-6 transition-all duration-300" />
-              ) : (
-                <FiMenu className="w-6 h-6 transition-all duration-300" />
-              )
-            )}
-          />
+          >
+            {isMenuOpen
+              ? <FiX className="w-5 h-5 transition-all duration-300" />
+              : <FiMenu className="w-5 h-5 transition-all duration-300" />}
+          </button>
 
           <NavbarBrand as={Link} href="/" className="cursor-pointer select-none flex items-center gap-2 max-w-fit">
             <div className="relative w-8 h-8 flex items-center justify-center overflow-hidden rounded-lg dark:bg-white p-1 transition-colors flex-shrink-0">
-              <Image
-                width={32}
-                height={32}
-                src="/Logo.png"
-                alt="logo"
-                className="object-contain dark:invert"
-              />
+              <Image width={32} height={32} src="/Logo.png" alt="logo" className="object-contain dark:invert" />
             </div>
             <p className="font-bold text-sm tracking-tight text-default-900 dark:text-white truncate max-w-[100px] xs:max-w-none">
               RecipeHub
@@ -103,49 +91,27 @@ export default function AppNavbar() {
           </NavbarBrand>
         </NavbarContent>
 
-        {/* 💻 DESKTOP VIEWPORT BRAND BAR */}
         <NavbarContent justify="start" className="hidden md:flex gap-0 max-w-fit">
-          <NavbarBrand
-            as={Link}
-            href="/"
-            className="cursor-pointer text-default-900 dark:text-white select-none items-center gap-3 hover:opacity-90 transition-opacity"
-          >
+          <NavbarBrand as={Link} href="/" className="cursor-pointer text-default-900 dark:text-white select-none items-center gap-3 hover:opacity-90 transition-opacity">
             <div className="relative w-10 h-10 flex items-center justify-center overflow-hidden rounded-xl dark:bg-white p-1.5 transition-colors">
-              <Image
-                width={40}
-                height={40}
-                src="/Logo.png"
-                alt="logo"
-                className="object-contain dark:invert"
-              />
+              <Image width={40} height={40} src="/Logo.png" alt="logo" className="object-contain dark:invert" />
             </div>
-            <p className="font-extrabold text-lg lg:text-xl tracking-tight whitespace-nowrap">
-              RecipeHub
-            </p>
+            <p className="font-extrabold text-lg lg:text-xl tracking-tight whitespace-nowrap">RecipeHub</p>
           </NavbarBrand>
         </NavbarContent>
 
-        {/* 🖥️ MIDDLE LINKS LAYER */}
         <NavbarContent className="hidden md:flex gap-2 mx-6" justify="center">
           <NavbarItem>
-            <Link href="/" className={getLinkClass("/")}>
-              Home
-            </Link>
+            <Link href="/" className={getLinkClass("/")}>Home</Link>
           </NavbarItem>
           <NavbarItem>
-            <Link href="/recipes" className={getLinkClass("/recipes")}>
-              Browse Recipes
-            </Link>
+            <Link href="/recipes" className={getLinkClass("/recipes")}>Browse Recipes</Link>
           </NavbarItem>
           <NavbarItem>
-            {/* SAFE ROUTE WITH FALLBACK */}
-            <Link href={`/dashboard/${user?.role || 'user'}`} className={getLinkClass("/dashboard")}>
-              Dashboard
-            </Link>
+            <Link href={`/dashboard/${user?.role || 'user'}`} className={getLinkClass("/dashboard")}>Dashboard</Link>
           </NavbarItem>
         </NavbarContent>
 
-        {/* 🛠️ RIGHT ACTION UTILITY GROUP */}
         <NavbarContent justify="end" className="gap-1.5 sm:gap-3">
           <NavbarItem>
             <Button
@@ -155,7 +121,9 @@ export default function AppNavbar() {
               onClick={toggleTheme}
               aria-label="Toggle theme"
             >
-              {isDarkMode ? <Sun size={17} className="text-amber-500 animate-pulse" /> : <Moon size={17} className="stroke-[1.5]" />}
+              {isDarkMode
+                ? <Sun size={17} className="text-amber-500 animate-pulse" />
+                : <Moon size={17} className="stroke-[1.5]" />}
             </Button>
           </NavbarItem>
 
@@ -168,9 +136,8 @@ export default function AppNavbar() {
               <NavbarItem>
                 <DropdownTrigger>
                   <div className="flex items-center gap-1.5 sm:gap-2 cursor-pointer group select-none py-1 pl-1 pr-2 sm:py-1.5 sm:pl-1.5 sm:pr-3 rounded-xl bg-default-50/50 hover:bg-default-100 dark:bg-zinc-900/40 dark:hover:bg-zinc-800/80 border border-default-200/30 dark:border-zinc-800/30 transition-all max-w-[120px] sm:max-w-[200px]">
-                    {/* FIXED HEROUI AVATAR COMPONENT */}
-                    <Avatar 
-                      src={user?.image || undefined} 
+                    <Avatar
+                      src={user?.image || undefined}
                       name={user?.name || "?"}
                       className="w-6 h-6 sm:w-8 sm:h-8 border border-default-200/60 dark:border-zinc-700 text-xs"
                     />
@@ -213,7 +180,6 @@ export default function AppNavbar() {
           )}
         </NavbarContent>
 
-        {/* 📱 MOBILE NAVIGATION DRAWER OVERLAY */}
         <NavbarMenu className="pt-6 px-4 gap-2 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border-t border-default-100 dark:border-zinc-900 top-[calc(var(--navbar-height))] max-h-[calc(100vh-var(--navbar-height))] overflow-y-auto transition-all">
           <NavbarMenuItem>
             <Link href="/" className={getLinkClass("/", true)} onClick={() => setIsMenuOpen(false)}>
@@ -245,11 +211,10 @@ export default function AppNavbar() {
           ) : isLoggedIn ? (
             <>
               <div className="flex items-center gap-3 px-4 py-3 mb-2 rounded-xl bg-default-50 dark:bg-zinc-900/40 border border-default-200/40 dark:border-zinc-800/40 mx-1">
-                {/* FIXED HEROUI AVATAR COMPONENT */}
-                <Avatar 
-                  src={user?.image || undefined} 
-                  name={user?.name || "?"} 
-                  className="w-9 h-9 border border-default-200/60 dark:border-zinc-700 text-xs" 
+                <Avatar
+                  src={user?.image || undefined}
+                  name={user?.name || "?"}
+                  className="w-9 h-9 border border-default-200/60 dark:border-zinc-700 text-xs"
                 />
                 <div className="flex flex-col min-w-0 flex-1">
                   <p className="text-sm font-bold text-default-900 dark:text-white truncate">{user?.name}</p>
@@ -265,7 +230,6 @@ export default function AppNavbar() {
               </NavbarMenuItem>
 
               <NavbarMenuItem>
-                {/* DYNAMIC PROFILE ROUTE FOR MOBILE */}
                 <Link href={`/dashboard/${user?.role || "user"}`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-default-700 dark:text-zinc-300 font-medium text-sm hover:bg-default-50 dark:hover:bg-zinc-900/40" onClick={() => setIsMenuOpen(false)}>
                   <User size={16} className="text-default-400" />
                   <span>My Profile Settings</span>
